@@ -12,13 +12,13 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.math.Direction;
 
 public class CamoBlockEntity extends BlockEntity {
 
-	public BlockState upState = Blocks.MELON.getDefaultState();
+	public BlockState upState = Blocks.STONE.getDefaultState();
 	public BlockState downState = Blocks.STONE.getDefaultState();
 	public BlockState northState = Blocks.STONE.getDefaultState();
 	public BlockState eastState = Blocks.STONE.getDefaultState();
@@ -34,37 +34,39 @@ public class CamoBlockEntity extends BlockEntity {
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
 		super.toTag(tag);
-		serialize(tag);
+
+		tag.put("upState", serializeBlockState(upState));
+		tag.put("downState", serializeBlockState(downState));
+		tag.put("northState", serializeBlockState(northState));
+		tag.put("eastState", serializeBlockState(eastState));
+		tag.put("southState", serializeBlockState(southState));
+		tag.put("westState", serializeBlockState(westState));
+
 		return tag;
 	}
 
 	@Override
 	public void fromTag(BlockState state, CompoundTag tag) {
 		super.fromTag(state, tag);
-		deserialize(tag);
+
+		upState = deserializeBlockState(tag.get("upState"));
+		downState = deserializeBlockState(tag.get("downState"));
+		northState = deserializeBlockState(tag.get("northState"));
+		eastState = deserializeBlockState(tag.get("eastState"));
+		southState = deserializeBlockState(tag.get("southState"));
+		westState = deserializeBlockState(tag.get("westState"));
+
 	}
 
-	public CompoundTag serialize(CompoundTag tag) {
-
-		tag.put("upState", NbtHelper.fromBlockState(upState));
-		tag.put("downState", NbtHelper.fromBlockState(downState));
-		tag.put("northState", NbtHelper.fromBlockState(northState));
-		tag.put("eastState", NbtHelper.fromBlockState(eastState));
-		tag.put("southState", NbtHelper.fromBlockState(southState));
-		tag.put("westState", NbtHelper.fromBlockState(westState));
-
+	public Tag serializeBlockState(BlockState state) {
+		Tag tag = BlockState.CODEC.stable().encodeStart(NbtOps.INSTANCE, state).getOrThrow(true,
+				(str) -> new RuntimeException(str));
 		return tag;
 	}
 
-	public void deserialize(CompoundTag tag) {
-
-		upState = NbtHelper.toBlockState(tag.getCompound("upState"));
-		downState = NbtHelper.toBlockState(tag.getCompound("downState"));
-		northState = NbtHelper.toBlockState(tag.getCompound("northState"));
-		eastState = NbtHelper.toBlockState(tag.getCompound("eastState"));
-		southState = NbtHelper.toBlockState(tag.getCompound("southState"));
-		westState = NbtHelper.toBlockState(tag.getCompound("westState"));
-
+	public BlockState deserializeBlockState(Tag tag) {
+		return BlockState.CODEC.stable().decode(NbtOps.INSTANCE, tag)
+				.getOrThrow(true, (str) -> new RuntimeException(str)).getFirst();
 	}
 
 	public void setState(Direction dir, BlockState newState) {
@@ -164,11 +166,6 @@ public class CamoBlockEntity extends BlockEntity {
 		}
 
 		return this.mesh = builder.build();
-	}
-
-	@Override
-	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		return new BlockEntityUpdateS2CPacket(this.pos, -1, this.serialize(new CompoundTag()));
 	}
 
 }
