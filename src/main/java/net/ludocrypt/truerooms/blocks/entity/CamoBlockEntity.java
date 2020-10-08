@@ -34,17 +34,17 @@ public class CamoBlockEntity extends BlockEntity {
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
 		super.toTag(tag);
-		serializeCarving(tag);
+		serialize(tag);
 		return tag;
 	}
 
 	@Override
 	public void fromTag(BlockState state, CompoundTag tag) {
 		super.fromTag(state, tag);
-		deserializeCarving(tag);
+		deserialize(tag);
 	}
 
-	public CompoundTag serializeCarving(CompoundTag tag) {
+	public CompoundTag serialize(CompoundTag tag) {
 
 		tag.put("upState", NbtHelper.fromBlockState(upState));
 		tag.put("downState", NbtHelper.fromBlockState(downState));
@@ -56,7 +56,7 @@ public class CamoBlockEntity extends BlockEntity {
 		return tag;
 	}
 
-	public void deserializeCarving(CompoundTag tag) {
+	public void deserialize(CompoundTag tag) {
 
 		upState = NbtHelper.toBlockState(tag.getCompound("upState"));
 		downState = NbtHelper.toBlockState(tag.getCompound("downState"));
@@ -168,7 +168,7 @@ public class CamoBlockEntity extends BlockEntity {
 
 	@Override
 	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		return new BlockEntityUpdateS2CPacket(this.pos, -1, this.serializeCarving(new CompoundTag()));
+		return new BlockEntityUpdateS2CPacket(this.pos, -1, this.serialize(new CompoundTag()));
 	}
 
 }
