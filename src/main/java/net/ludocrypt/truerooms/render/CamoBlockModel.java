@@ -18,7 +18,11 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachedBlockView;
+import net.ludocrypt.truerooms.mixin.AccessibleBakedQuad;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.ModelBakeSettings;
@@ -40,10 +44,18 @@ public class CamoBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
 	private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[] {
 			new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE,
+					new Identifier("minecraft:block/beehive_side")),
+			new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE,
+					new Identifier("minecraft:block/birch_trapdoor")),
+			new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE,
 					new Identifier("minecraft:block/gilded_blackstone")),
 			new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE,
-					new Identifier("minecraft:block/jukebox_side")) };
-	private Sprite[] SPRITES = new Sprite[2];
+					new Identifier("minecraft:block/hay_block_side")),
+			new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE,
+					new Identifier("minecraft:block/barrel_bottom")),
+			new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE,
+					new Identifier("minecraft:block/daylight_detector_inverted_top")) };
+	private Sprite[] SPRITES = new Sprite[6];
 
 	private Mesh mesh;
 
@@ -59,39 +71,38 @@ public class CamoBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 	@Override
 	public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter,
 			Set<Pair<String, String>> unresolvedTextureReferences) {
-		return Arrays.asList(SPRITE_IDS); // The textures this model (and all its model dependencies, and their
-											// dependencies, etc...!) depends on.
+		return Arrays.asList(SPRITE_IDS);
 	}
 
 	@Override
 	public BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter,
 			ModelBakeSettings rotationContainer, Identifier modelId) {
 
-		// Load the default block model
 		JsonUnbakedModel defaultBlockModel = (JsonUnbakedModel) loader.getOrLoadModel(DEFAULT_BLOCK_MODEL);
-		// Get its ModelTransformation
+
 		transformation = defaultBlockModel.getTransformations();
 
-		// Get the sprites
-		for (int i = 0; i < 2; ++i) {
+		for (int i = 0; i < 6; ++i) {
 			SPRITES[i] = textureGetter.apply(SPRITE_IDS[i]);
 		}
-		// Build the mesh using the Renderer API
+
 		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
 		MeshBuilder builder = renderer.meshBuilder();
 		QuadEmitter emitter = builder.getEmitter();
 
 		for (Direction direction : Direction.values()) {
-			int spriteIdx = direction == Direction.UP || direction == Direction.DOWN ? 1 : 0;
-			// Add a new face to the mesh
+			int spriteIdx = direction == Direction.UP ? 5
+					: direction == Direction.DOWN ? 4
+							: direction == Direction.NORTH ? 0
+									: direction == Direction.EAST ? 1
+											: direction == Direction.SOUTH ? 2 : direction == Direction.WEST ? 3 : 0;
+
 			emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-			// Set the sprite of the face, must be called after .square()
-			// We haven't specified any UV coordinates, so we want to use the whole texture.
-			// BAKE_LOCK_UV does exactly that.
+
 			emitter.spriteBake(0, SPRITES[spriteIdx], MutableQuadView.BAKE_LOCK_UV);
-			// Enable texture usage
+
 			emitter.spriteColor(0, -1, -1, -1, -1);
-			// Add the quad to the mesh
+
 			emitter.emit();
 		}
 		mesh = builder.build();
@@ -101,12 +112,12 @@ public class CamoBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
 	@Override
 	public List<BakedQuad> getQuads(BlockState state, Direction face, Random random) {
-		return null; // Don't need because we use FabricBakedModel instead
+		return null;
 	}
 
 	@Override
 	public boolean useAmbientOcclusion() {
-		return false; // Again, we don't really care, etc...
+		return true;
 	}
 
 	@Override
@@ -126,7 +137,7 @@ public class CamoBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
 	@Override
 	public Sprite getSprite() {
-		return SPRITES[1]; // Block break particle, let's use furnace_top
+		return SPRITES[5];
 	}
 
 	@Override
@@ -141,16 +152,56 @@ public class CamoBlockModel implements UnbakedModel, BakedModel, FabricBakedMode
 
 	@Override
 	public boolean isVanillaAdapter() {
-		return false; // False to trigger FabricBakedModel rendering
+		return false;
 	}
 
 	@Override
 	public void emitBlockQuads(BlockRenderView blockRenderView, BlockState blockState, BlockPos blockPos,
 			Supplier<Random> supplier, RenderContext renderContext) {
-		// Render function
 
-		// We just render the mesh
+		renderContext.pushTransform(mqv -> {
+
+			Direction dir = mqv.lightFace();
+
+			BlockState[] idList = (BlockState[]) ((RenderAttachedBlockView) blockRenderView)
+					.getBlockEntityRenderAttachment(blockPos);
+
+			BakedModel model = null;
+
+			if (idList != null) {
+				model = MinecraftClient.getInstance().getBlockRenderManager().getModel(idList[0]);
+			}
+
+			List<BakedQuad> bakedQuadList = null;
+
+			if (model != null) {
+				bakedQuadList = model.getQuads(idList[0], dir, supplier.get());
+			}
+
+			BakedQuad id0 = null;
+
+			if (bakedQuadList != null) {
+				if (0 < bakedQuadList.toArray().length) {
+					id0 = bakedQuadList.get(0);
+				}
+			}
+
+			Sprite id0Sprite = null;
+
+			if (id0 != null) {
+				id0Sprite = ((AccessibleBakedQuad) id0).getSprite();
+			}
+
+			if (id0Sprite != null) {
+				mqv.spriteBake(0, id0Sprite, MutableQuadView.BAKE_LOCK_UV);
+			}
+
+			return true;
+		});
+
 		renderContext.meshConsumer().accept(mesh);
+
+		renderContext.popTransform();
 	}
 
 	@Override

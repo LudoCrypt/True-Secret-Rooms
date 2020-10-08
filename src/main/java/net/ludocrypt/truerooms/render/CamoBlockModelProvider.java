@@ -10,7 +10,7 @@ public class CamoBlockModelProvider implements ModelResourceProvider {
 
 	public static final CamoBlockModel CAMO_BLOCK_MODEL = new CamoBlockModel();
 	public static final Identifier CAMO_BLOCK_MODEL_BLOCK = new Identifier("truerooms:block/camo_block");
-	public static final Identifier CAMO_BLOCK_MODEL_ITEM  = new Identifier("truerooms:item/camo_block");
+	public static final Identifier CAMO_BLOCK_MODEL_ITEM = new Identifier("truerooms:item/ghost_block");
 
 	@Override
 	public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext)
