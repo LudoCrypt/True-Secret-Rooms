@@ -54,11 +54,11 @@ public class GhostBlock extends BlockWithEntity {
 			} else {
 				if (world.getBlockEntity(pos.down()) instanceof CamoBlockEntity) {
 					CamoBlockEntity blockEntityDown = (CamoBlockEntity) world.getBlockEntity(pos.down());
-					blockEntity.setState(blockEntityDown.getState(0));
+					blockEntity.setState(blockEntityDown.getState(Direction.UP));
 				} else {
 					if (world.getBlockEntity(pos.up()) instanceof CamoBlockEntity) {
 						CamoBlockEntity blockEntityUp = (CamoBlockEntity) world.getBlockEntity(pos.up());
-						blockEntity.setState(blockEntityUp.getState(0));
+						blockEntity.setState(blockEntityUp.getState(Direction.UP));
 					}
 				}
 			}
