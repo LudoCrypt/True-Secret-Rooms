@@ -1,0 +1,14 @@
+Camo Paste
+One Way Glass
+Secret Trapdoors
+Secret Doors
+Secret Stairs
+Secret Slabs
+Ghost Blocks
+
+Maybe
+
+Camo paste has nbt of BlockState for block, and you can right click on said blocks above, to SPECIFICALLY change one of the sides.
+
+
+Maybe, with that idea, have an interchangable block thats like solid air or something, its a normal block, speed time like stone, sound changes based on what youre mining on.

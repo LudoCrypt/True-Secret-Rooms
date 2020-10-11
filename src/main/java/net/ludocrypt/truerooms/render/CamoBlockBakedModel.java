@@ -75,7 +75,9 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 			Supplier<Random> randomSupplier, RenderContext context) {
 		BlockEntity entity = blockView.getBlockEntity(pos);
 		if (entity instanceof CamoBlockEntity) {
+
 			context.meshConsumer().accept(((CamoBlockEntity) entity).getMesh());
+
 		}
 	}
 

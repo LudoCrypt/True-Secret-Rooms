@@ -1,5 +1,6 @@
 package net.ludocrypt.truerooms.blocks.entity;
 
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
@@ -11,12 +12,13 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.Direction;
 
-public class CamoBlockEntity extends BlockEntity {
+public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSerializable {
 
 	public BlockState upState = Blocks.STONE.getDefaultState();
 	public BlockState downState = Blocks.STONE.getDefaultState();
@@ -24,7 +26,6 @@ public class CamoBlockEntity extends BlockEntity {
 	public BlockState eastState = Blocks.STONE.getDefaultState();
 	public BlockState southState = Blocks.STONE.getDefaultState();
 	public BlockState westState = Blocks.STONE.getDefaultState();
-
 	private Mesh mesh;
 
 	public CamoBlockEntity() {
@@ -34,73 +35,100 @@ public class CamoBlockEntity extends BlockEntity {
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
 		super.toTag(tag);
-
-		tag.put("upState", serializeBlockState(upState));
-		tag.put("downState", serializeBlockState(downState));
-		tag.put("northState", serializeBlockState(northState));
-		tag.put("eastState", serializeBlockState(eastState));
-		tag.put("southState", serializeBlockState(southState));
-		tag.put("westState", serializeBlockState(westState));
-
-		return tag;
+		return serialize(tag);
 	}
 
 	@Override
 	public void fromTag(BlockState state, CompoundTag tag) {
 		super.fromTag(state, tag);
-
-		upState = deserializeBlockState(tag.get("upState"));
-		downState = deserializeBlockState(tag.get("downState"));
-		northState = deserializeBlockState(tag.get("northState"));
-		eastState = deserializeBlockState(tag.get("eastState"));
-		southState = deserializeBlockState(tag.get("southState"));
-		westState = deserializeBlockState(tag.get("westState"));
-
+		deserialize(tag);
 	}
 
-	public Tag serializeBlockState(BlockState state) {
-		Tag tag = BlockState.CODEC.stable().encodeStart(NbtOps.INSTANCE, state).getOrThrow(true,
-				(str) -> new RuntimeException(str));
+	@Override
+	public CompoundTag toClientTag(CompoundTag tag) {
+		return toTag(tag);
+	}
+
+	@Override
+	@SuppressWarnings("resource")
+	public void fromClientTag(CompoundTag tag) {
+		fromTag(null, tag);
+		MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(), pos.getX(),
+				pos.getY(), pos.getZ());
+	}
+
+	public CompoundTag serialize(CompoundTag tag) {
+
+		tag.put("upState", NbtHelper.fromBlockState(upState));
+		tag.put("downState", NbtHelper.fromBlockState(downState));
+		tag.put("northState", NbtHelper.fromBlockState(northState));
+		tag.put("eastState", NbtHelper.fromBlockState(eastState));
+		tag.put("southState", NbtHelper.fromBlockState(southState));
+		tag.put("westState", NbtHelper.fromBlockState(westState));
+
 		return tag;
+
 	}
 
-	public BlockState deserializeBlockState(Tag tag) {
-		return BlockState.CODEC.stable().decode(NbtOps.INSTANCE, tag)
-				.getOrThrow(true, (str) -> new RuntimeException(str)).getFirst();
+	public void deserialize(CompoundTag tag) {
+
+		if (tag.contains("upState")) {
+			this.upState = NbtHelper.toBlockState(tag.getCompound("upState"));
+		}
+		if (tag.contains("downState")) {
+			this.downState = NbtHelper.toBlockState(tag.getCompound("downState"));
+		}
+		if (tag.contains("northState")) {
+			this.northState = NbtHelper.toBlockState(tag.getCompound("northState"));
+		}
+		if (tag.contains("eastState")) {
+			this.eastState = NbtHelper.toBlockState(tag.getCompound("eastState"));
+		}
+		if (tag.contains("southState")) {
+			this.southState = NbtHelper.toBlockState(tag.getCompound("southState"));
+		}
+		if (tag.contains("westState")) {
+			this.westState = NbtHelper.toBlockState(tag.getCompound("westState"));
+		}
+
 	}
 
 	public void setState(Direction dir, BlockState newState) {
 		switch (dir) {
 		case UP:
-			upState = newState;
+			this.upState = newState;
 			break;
 		case DOWN:
-			downState = newState;
+			this.downState = newState;
 			break;
 		case NORTH:
-			northState = newState;
+			this.northState = newState;
 			break;
 		case EAST:
-			eastState = newState;
+			this.eastState = newState;
 			break;
 		case SOUTH:
-			southState = newState;
+			this.southState = newState;
 			break;
 		case WEST:
-			westState = newState;
+			this.westState = newState;
 			break;
 		}
-		world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), 11);
+		if (!world.isClient) {
+			sync();
+		}
 	}
 
 	public void setState(BlockState newState) {
-		upState = newState;
-		downState = newState;
-		northState = newState;
-		eastState = newState;
-		southState = newState;
-		westState = newState;
-		world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), 11);
+		this.upState = newState;
+		this.downState = newState;
+		this.northState = newState;
+		this.eastState = newState;
+		this.southState = newState;
+		this.westState = newState;
+		if (!world.isClient) {
+			sync();
+		}
 	}
 
 	public BlockState getState(Direction dir) {
@@ -131,41 +159,84 @@ public class CamoBlockEntity extends BlockEntity {
 		return tempState;
 	}
 
-	public Mesh getMesh() {
-		if (this.mesh != null) {
-			return this.mesh;
+	public BlockState getState(Direction dir, CompoundTag tag) {
+		BlockState tempState = Blocks.STONE.getDefaultState();
+		switch (dir) {
+		case UP:
+			if (tag.contains("upState")) {
+				tempState = NbtHelper.toBlockState(tag.getCompound("upState"));
+			}
+			break;
+		case DOWN:
+			if (tag.contains("downState")) {
+				tempState = NbtHelper.toBlockState(tag.getCompound("downState"));
+			}
+			break;
+		case NORTH:
+			if (tag.contains("northState")) {
+				tempState = NbtHelper.toBlockState(tag.getCompound("northState"));
+			}
+			break;
+		case EAST:
+			if (tag.contains("eastState")) {
+				tempState = NbtHelper.toBlockState(tag.getCompound("eastState"));
+			}
+			break;
+		case SOUTH:
+			if (tag.contains("southState")) {
+				tempState = NbtHelper.toBlockState(tag.getCompound("southState"));
+			}
+			break;
+		case WEST:
+			if (tag.contains("westState")) {
+				tempState = NbtHelper.toBlockState(tag.getCompound("westState"));
+			}
+			break;
+		default:
+			if (tag.contains("upState")) {
+				tempState = NbtHelper.toBlockState(tag.getCompound("upState"));
+			}
+			break;
 		}
+		return tempState;
+	}
+
+	public Mesh getMesh() {
 
 		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
 		MeshBuilder builder = renderer.meshBuilder();
 		QuadEmitter emitter = builder.getEmitter();
 
+		CompoundTag tag = serialize(new CompoundTag());
+
 		for (Direction direction : Direction.values()) {
 
-			BlockState tempState = direction == Direction.UP ? upState
-					: direction == Direction.DOWN ? downState
-							: direction == Direction.NORTH ? northState
-									: direction == Direction.EAST ? eastState
-											: direction == Direction.SOUTH ? southState
-													: direction == Direction.WEST ? westState : null;
+			Sprite spr = MinecraftClient.getInstance().getBlockRenderManager().getModel(getState(direction, tag))
+					.getSprite();
 
-			if (tempState != null) {
+			emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 
-				emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+			emitter.spriteBake(0, spr, MutableQuadView.BAKE_LOCK_UV);
 
-				emitter.spriteBake(0,
-						MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState).getSprite(),
-						MutableQuadView.BAKE_LOCK_UV);
+			emitter.spriteColor(0, -1, -1, -1, -1);
 
-				emitter.spriteColor(0, -1, -1, -1, -1);
-
-				emitter.emit();
-
-			}
+			emitter.emit();
 
 		}
 
-		return this.mesh = builder.build();
+		this.mesh = builder.build();
+
+		return this.mesh;
+	}
+
+	@Override
+	public BlockEntityUpdateS2CPacket toUpdatePacket() {
+		return new BlockEntityUpdateS2CPacket(this.pos, -1, serialize(new CompoundTag()));
+	}
+
+	@Override
+	public CompoundTag toInitialChunkDataTag() {
+		return serialize(new CompoundTag());
 	}
 
 }

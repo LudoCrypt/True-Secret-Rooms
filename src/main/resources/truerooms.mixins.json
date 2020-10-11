@@ -4,10 +4,10 @@
 	"package": "net.ludocrypt.truerooms.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
-		"AccessibleBakedQuad"
 	],
 	"client": [
-		"DrawSideMixin"
+		"DrawSideMixin",
+		"BakedQuadFactoryMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

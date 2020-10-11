@@ -17,6 +17,7 @@ import net.minecraft.world.BlockView;
 @Environment(EnvType.CLIENT)
 @Mixin(Block.class)
 public class DrawSideMixin {
+
 	@Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
 	private static void shouldDrawSide(BlockState state, BlockView world, BlockPos pos, Direction facing,
 			CallbackInfoReturnable<Boolean> ci) {
@@ -26,4 +27,5 @@ public class DrawSideMixin {
 			ci.setReturnValue(true);
 		}
 	}
+
 }

@@ -34,11 +34,6 @@ public class GhostBlock extends BlockWithEntity {
 	}
 
 	@Override
-	public float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
-		return 1;
-	}
-
-	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
 		if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
 			CamoBlockEntity blockEntity = (CamoBlockEntity) world.getBlockEntity(pos);
