@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -11,14 +12,13 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -41,33 +41,59 @@ public class GhostBlock extends BlockWithEntity {
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
 		if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
 			CamoBlockEntity blockEntity = (CamoBlockEntity) world.getBlockEntity(pos);
-			if (world.getBlockState(pos.down()) != this.getDefaultState()
-					&& world.getBlockState(pos.up()) != this.getDefaultState()) {
-				if (world.getBlockState(pos.down()).isOpaque()) {
-					blockEntity.setState(world.getBlockState(pos.down()));
-				} else if (world.getBlockState(pos.up()).isOpaque()) {
-					blockEntity.setState(world.getBlockState(pos.up()));
+
+			MinecraftClient client = MinecraftClient.getInstance();
+			HitResult hit = client.crosshairTarget;
+
+			switch (hit.getType()) {
+			case MISS:
+				blockEntity.setState(Blocks.STONE.getDefaultState());
+				break;
+			case BLOCK:
+				BlockHitResult blockHit = (BlockHitResult) hit;
+				BlockPos blockPos = blockHit.getBlockPos();
+				BlockState blockState = client.world.getBlockState(blockPos);
+				Block block = blockState.getBlock();
+
+				if (block != Blocks.AIR && blockState.isFullCube(world, blockPos)) {
+					blockEntity.setState(blockState);
+				} else if (block == this) {
+					if (world.getBlockEntity(blockPos) instanceof CamoBlockEntity) {
+						CamoBlockEntity blockEntityAdjacent = (CamoBlockEntity) world.getBlockEntity(blockPos);
+						blockEntity.setState(blockEntityAdjacent.getState(blockHit.getSide()));
+					} else {
+						blockEntity.setState(Blocks.STONE.getDefaultState());
+					}
 				} else {
 					blockEntity.setState(Blocks.STONE.getDefaultState());
 				}
-			} else {
-				if (world.getBlockEntity(pos.down()) instanceof CamoBlockEntity) {
-					CamoBlockEntity blockEntityDown = (CamoBlockEntity) world.getBlockEntity(pos.down());
-					blockEntity.setState(blockEntityDown.getState(Direction.UP));
-				} else {
-					if (world.getBlockEntity(pos.up()) instanceof CamoBlockEntity) {
-						CamoBlockEntity blockEntityUp = (CamoBlockEntity) world.getBlockEntity(pos.up());
-						blockEntity.setState(blockEntityUp.getState(Direction.UP));
-					}
-				}
+				break;
+			case ENTITY:
+				blockEntity.setState(Blocks.STONE.getDefaultState());
+				break;
 			}
-		}
-	}
 
-	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-			BlockHitResult hit) {
-		return super.onUse(state, world, pos, player, hand, hit);
+//			if (world.getBlockState(pos.down()) != this.getDefaultState()
+//					&& world.getBlockState(pos.up()) != this.getDefaultState()) {
+//				if (world.getBlockState(pos.down()).isOpaque()) {
+//					blockEntity.setState(world.getBlockState(pos.down()));
+//				} else if (world.getBlockState(pos.up()).isOpaque()) {
+//					blockEntity.setState(world.getBlockState(pos.up()));
+//				} else {
+//					blockEntity.setState(Blocks.STONE.getDefaultState());
+//				}
+//			} else {
+//				if (world.getBlockEntity(pos.down()) instanceof CamoBlockEntity) {
+//					CamoBlockEntity blockEntityDown = (CamoBlockEntity) world.getBlockEntity(pos.down());
+//					blockEntity.setState(blockEntityDown.getState(Direction.UP));
+//				} else {
+//					if (world.getBlockEntity(pos.up()) instanceof CamoBlockEntity) {
+//						CamoBlockEntity blockEntityUp = (CamoBlockEntity) world.getBlockEntity(pos.up());
+//						blockEntity.setState(blockEntityUp.getState(Direction.UP));
+//					}
+//				}
+//			}
+		}
 	}
 
 	@Override

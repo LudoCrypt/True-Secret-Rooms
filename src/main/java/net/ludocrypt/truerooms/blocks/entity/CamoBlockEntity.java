@@ -19,6 +19,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.nbt.CompoundTag;
@@ -228,31 +229,32 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 				tempState = NbtHelper.toBlockState(tag.getCompound(direction.toString() + "State"));
 			}
 
-			Sprite spr = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState).getSprite();
+			BakedModel fullModel = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState);
 
-			List<BakedQuad> abqList = (MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState)
-					.getQuads(tempState, direction, randomSupplier.get()));
-
-			BakedQuad abq = abqList.get(0);
+			List<BakedQuad> abqList = fullModel.getQuads(tempState, direction, randomSupplier.get());
 
 			if (0 < abqList.toArray().length) {
-				spr = ((AccessibleBakedQuad) abq).getSprite();
-			}
 
-			BlockColors colors = MinecraftClient.getInstance().getBlockColors();
-			int color = colors.getColor(tempState, blockView, pos, 0);
+				BlockColors colors = MinecraftClient.getInstance().getBlockColors();
+				int color = colors.getColor(tempState, blockView, pos, 0);
 
-			emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-			emitter.spriteBake(0, spr, MutableQuadView.BAKE_LOCK_UV);
+				for (BakedQuad quad : abqList) {
 
-//			emitter.fromVanilla(abq.getVertexData(), 0, false);
+					Sprite quadSprite = ((AccessibleBakedQuad) quad).getSprite();
 
-			if (abq.hasColor()) {
-				emitter.colorIndex(0);
-				emitter.spriteColor(0, color, color, color, color);
-			} else {
-				emitter.colorIndex(-1);
-				emitter.spriteColor(0, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF);
+					emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+					emitter.spriteBake(0, quadSprite, MutableQuadView.BAKE_LOCK_UV);
+
+					if (quad.hasColor()) {
+						emitter.colorIndex(0);
+						emitter.spriteColor(0, color, color, color, color);
+					} else {
+						emitter.colorIndex(-1);
+						emitter.spriteColor(0, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF);
+					}
+
+				}
+
 			}
 
 			emitter.emit();
