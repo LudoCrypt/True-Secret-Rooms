@@ -1,5 +1,6 @@
 package net.ludocrypt.truerooms.render;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -7,6 +8,7 @@ import java.util.function.Function;
 
 import com.mojang.datafixers.util.Pair;
 
+import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelBakeSettings;
 import net.minecraft.client.render.model.ModelLoader;
@@ -17,9 +19,12 @@ import net.minecraft.util.Identifier;
 
 public class CamoBlockUnbakedModel implements UnbakedModel {
 
+	public static Mesh mesh;
+	private static final Identifier DEFAULT_BLOCK_MODEL = new Identifier("minecraft:block/block");
+
 	@Override
 	public Collection<Identifier> getModelDependencies() {
-		return Collections.emptyList();
+		return Arrays.asList(DEFAULT_BLOCK_MODEL);
 	}
 
 	@Override

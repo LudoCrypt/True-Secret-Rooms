@@ -1,0 +1,24 @@
+package net.ludocrypt.truerooms.render;
+
+import net.fabricmc.fabric.api.client.model.ModelProviderContext;
+import net.fabricmc.fabric.api.client.model.ModelProviderException;
+import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
+import net.ludocrypt.truerooms.SecretRooms;
+import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.util.Identifier;
+
+public class CamoBlockResourceProvider implements ModelResourceProvider {
+
+	public static final CamoBlockUnbakedModel CAMO_MODEL = new CamoBlockUnbakedModel();
+	public static final Identifier GHOST_BLOCK_BLOCK = SecretRooms.id("block/ghost_block");
+
+	@Override
+	public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext)
+			throws ModelProviderException {
+		if (identifier.equals(GHOST_BLOCK_BLOCK)) {
+			return CAMO_MODEL;
+		} else {
+			return null;
+		}
+	}
+}

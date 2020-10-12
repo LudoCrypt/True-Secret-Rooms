@@ -17,6 +17,7 @@ import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -41,7 +42,7 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 
 	@Override
 	public boolean isSideLit() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -57,7 +58,8 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 
 	@Override
 	public ModelTransformation getTransformation() {
-		return ModelTransformation.NONE;
+		return MinecraftClient.getInstance().getBakedModelManager()
+				.getModel(new ModelIdentifier("minecraft:block/block")).getTransformation();
 	}
 
 	@Override
@@ -75,9 +77,8 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 			Supplier<Random> randomSupplier, RenderContext context) {
 		BlockEntity entity = blockView.getBlockEntity(pos);
 		if (entity instanceof CamoBlockEntity) {
-
-			context.meshConsumer().accept(((CamoBlockEntity) entity).getMesh());
-
+			context.meshConsumer()
+					.accept(((CamoBlockEntity) entity).getMesh(blockView, state, pos, randomSupplier, context));
 		}
 	}
 

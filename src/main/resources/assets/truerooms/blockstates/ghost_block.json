@@ -1,7 +1,7 @@
 {
 	"variants": {
 		"": {
-			"model": "truerooms:block/camo_block"
+			"model": "truerooms:block/ghost_block"
 		}
 	}
 }

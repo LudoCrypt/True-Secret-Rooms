@@ -7,7 +7,8 @@
 	],
 	"client": [
 		"DrawSideMixin",
-		"BakedQuadFactoryMixin"
+		"BakedQuadFactoryMixin",
+		"AccessibleBakedQuad"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -1,5 +1,8 @@
 package net.ludocrypt.truerooms.blocks.entity;
 
+import java.util.Random;
+import java.util.function.Supplier;
+
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
@@ -7,16 +10,21 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
+import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.ludocrypt.truerooms.SecretRooms;
+import net.ludocrypt.truerooms.mixin.AccessibleBakedQuad;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockRenderView;
 
 public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSerializable {
 
@@ -201,7 +209,8 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempState;
 	}
 
-	public Mesh getMesh() {
+	public Mesh getMesh(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier,
+			RenderContext context) {
 
 		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
 		MeshBuilder builder = renderer.meshBuilder();
@@ -211,8 +220,22 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 		for (Direction direction : Direction.values()) {
 
-			Sprite spr = MinecraftClient.getInstance().getBlockRenderManager().getModel(getState(direction, tag))
-					.getSprite();
+			BlockState tempState = Blocks.STONE.getDefaultState();
+
+			if (tag.contains(direction.toString() + "State")) {
+				tempState = NbtHelper.toBlockState(tag.getCompound(direction.toString() + "State"));
+			}
+
+			Sprite spr = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState).getSprite();
+
+			if (((AccessibleBakedQuad) (MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState)
+					.getQuads(tempState, direction, randomSupplier.get())).get(0)) != null) {
+				spr = ((AccessibleBakedQuad) (MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState)
+						.getQuads(tempState, direction, randomSupplier.get())).get(0)).getSprite();
+			}
+
+			BlockColors colors = MinecraftClient.getInstance().getBlockColors();
+			int color = colors.getColor(tempState, blockView, pos, 0);
 
 			emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 
@@ -232,11 +255,6 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	@Override
 	public BlockEntityUpdateS2CPacket toUpdatePacket() {
 		return new BlockEntityUpdateS2CPacket(this.pos, -1, serialize(new CompoundTag()));
-	}
-
-	@Override
-	public CompoundTag toInitialChunkDataTag() {
-		return serialize(new CompoundTag());
 	}
 
 }
