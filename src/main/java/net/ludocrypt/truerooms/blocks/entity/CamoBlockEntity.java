@@ -1,5 +1,6 @@
 package net.ludocrypt.truerooms.blocks.entity;
 
+import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -229,24 +230,28 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 			Sprite spr = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState).getSprite();
 
-			BakedQuad abq = (MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState)
-					.getQuads(tempState, direction, randomSupplier.get())).get(0);
+			List<BakedQuad> abqList = (MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState)
+					.getQuads(tempState, direction, randomSupplier.get()));
 
-			if (abq != null) {
+			BakedQuad abq = abqList.get(0);
+
+			if (0 < abqList.toArray().length) {
 				spr = ((AccessibleBakedQuad) abq).getSprite();
 			}
 
 			BlockColors colors = MinecraftClient.getInstance().getBlockColors();
 			int color = colors.getColor(tempState, blockView, pos, 0);
 
-//			emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-//			emitter.spriteBake(0, spr, MutableQuadView.BAKE_LOCK_UV);
+			emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+			emitter.spriteBake(0, spr, MutableQuadView.BAKE_LOCK_UV);
 
-			emitter.fromVanilla(abq.getVertexData(), 0, false);
+//			emitter.fromVanilla(abq.getVertexData(), 0, false);
 
 			if (abq.hasColor()) {
+				emitter.colorIndex(0);
 				emitter.spriteColor(0, color, color, color, color);
 			} else {
+				emitter.colorIndex(-1);
 				emitter.spriteColor(0, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF);
 			}
 
