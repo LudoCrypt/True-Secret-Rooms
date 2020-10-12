@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
@@ -34,7 +33,13 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	public BlockState eastState = Blocks.STONE.getDefaultState();
 	public BlockState southState = Blocks.STONE.getDefaultState();
 	public BlockState westState = Blocks.STONE.getDefaultState();
-	private Mesh mesh;
+
+	public Direction upDirection = Direction.UP;
+	public Direction downDirection = Direction.DOWN;
+	public Direction northDirection = Direction.NORTH;
+	public Direction eastDirection = Direction.EAST;
+	public Direction southDirection = Direction.SOUTH;
+	public Direction westDirection = Direction.WEST;
 
 	public CamoBlockEntity() {
 		super(SecretRooms.CAMO_BLOCK_ENTITY);
@@ -74,6 +79,15 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		tag.put("southState", NbtHelper.fromBlockState(southState));
 		tag.put("westState", NbtHelper.fromBlockState(westState));
 
+		// Separation
+
+		tag.putString("upDirection", upDirection.getName());
+		tag.putString("downDirection", downDirection.getName());
+		tag.putString("northDirection", northDirection.getName());
+		tag.putString("eastDirection", eastDirection.getName());
+		tag.putString("southDirection", southDirection.getName());
+		tag.putString("westDirection", westDirection.getName());
+
 		return tag;
 
 	}
@@ -99,8 +113,30 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			this.westState = NbtHelper.toBlockState(tag.getCompound("westState"));
 		}
 
+		// Separation
+
+		if (tag.contains("upDirection")) {
+			upDirection = Direction.byName(tag.getString("upDirection"));
+		}
+		if (tag.contains("downDirection")) {
+			downDirection = Direction.byName(tag.getString("downDirection"));
+		}
+		if (tag.contains("northDirection")) {
+			northDirection = Direction.byName(tag.getString("northDirection"));
+		}
+		if (tag.contains("eastDirection")) {
+			eastDirection = Direction.byName(tag.getString("eastDirection"));
+		}
+		if (tag.contains("southDirection")) {
+			southDirection = Direction.byName(tag.getString("southDirection"));
+		}
+		if (tag.contains("westDirection")) {
+			westDirection = Direction.byName(tag.getString("westDirection"));
+		}
+
 	}
 
+	@SuppressWarnings("resource")
 	public void setState(Direction dir, BlockState newState) {
 		switch (dir) {
 		case UP:
@@ -124,9 +160,13 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		}
 		if (!world.isClient) {
 			sync();
+		} else {
+			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
+					pos.getX(), pos.getY(), pos.getZ());
 		}
 	}
 
+	@SuppressWarnings("resource")
 	public void setState(BlockState newState) {
 		this.upState = newState;
 		this.downState = newState;
@@ -136,6 +176,55 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		this.westState = newState;
 		if (!world.isClient) {
 			sync();
+		} else {
+			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
+					pos.getX(), pos.getY(), pos.getZ());
+		}
+	}
+
+	@SuppressWarnings("resource")
+	public void setDirection(Direction dir, Direction newDir) {
+		switch (dir) {
+		case UP:
+			this.upDirection = newDir;
+			break;
+		case DOWN:
+			this.downDirection = newDir;
+			break;
+		case NORTH:
+			this.northDirection = newDir;
+			break;
+		case EAST:
+			this.eastDirection = newDir;
+			break;
+		case SOUTH:
+			this.southDirection = newDir;
+			break;
+		case WEST:
+			this.westDirection = newDir;
+			break;
+		}
+		if (!world.isClient) {
+			sync();
+		} else {
+			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
+					pos.getX(), pos.getY(), pos.getZ());
+		}
+	}
+
+	@SuppressWarnings("resource")
+	public void setDirection(Direction newDir) {
+		this.upDirection = newDir;
+		this.downDirection = newDir;
+		this.northDirection = newDir;
+		this.eastDirection = newDir;
+		this.southDirection = newDir;
+		this.westDirection = newDir;
+		if (!world.isClient) {
+			sync();
+		} else {
+			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
+					pos.getX(), pos.getY(), pos.getZ());
 		}
 	}
 
@@ -167,7 +256,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempState;
 	}
 
-	public BlockState getState(Direction dir, CompoundTag tag) {
+	public static BlockState getState(Direction dir, CompoundTag tag) {
 		BlockState tempState = Blocks.STONE.getDefaultState();
 		switch (dir) {
 		case UP:
@@ -209,11 +298,65 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempState;
 	}
 
+	public Direction getDir(Direction dir) {
+		Direction tempDir;
+		switch (dir) {
+		case UP:
+			tempDir = upDirection;
+			break;
+		case DOWN:
+			tempDir = downDirection;
+			break;
+		case NORTH:
+			tempDir = northDirection;
+			break;
+		case EAST:
+			tempDir = eastDirection;
+			break;
+		case SOUTH:
+			tempDir = southDirection;
+			break;
+		case WEST:
+			tempDir = westDirection;
+			break;
+		default:
+			tempDir = upDirection;
+			break;
+		}
+		return tempDir;
+	}
+
+	public static Direction getDir(Direction dir, CompoundTag tag) {
+		Direction tempDir;
+		switch (dir) {
+		case UP:
+			tempDir = Direction.byName(tag.getString("upDirection"));
+			break;
+		case DOWN:
+			tempDir = Direction.byName(tag.getString("downDirection"));
+			break;
+		case NORTH:
+			tempDir = Direction.byName(tag.getString("northDirection"));
+			break;
+		case EAST:
+			tempDir = Direction.byName(tag.getString("eastDirection"));
+			break;
+		case SOUTH:
+			tempDir = Direction.byName(tag.getString("southDirection"));
+			break;
+		case WEST:
+			tempDir = Direction.byName(tag.getString("westDirection"));
+			break;
+		default:
+			tempDir = Direction.byName(tag.getString("upDirection"));
+			break;
+		}
+		return tempDir;
+	}
+
 	public void renderBlock(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier,
 			RenderContext context) {
 
-//		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
-//		MeshBuilder builder = renderer.meshBuilder();
 		QuadEmitter emitter = context.getEmitter();
 
 		CompoundTag tag = serialize(new CompoundTag());
@@ -221,14 +364,18 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		for (Direction direction : Direction.values()) {
 
 			BlockState tempState = Blocks.STONE.getDefaultState();
+			Direction tempDirection = Direction.NORTH;
 
 			if (tag.contains(direction.toString() + "State")) {
-				tempState = NbtHelper.toBlockState(tag.getCompound(direction.toString() + "State"));
+				tempState = NbtHelper.toBlockState(tag.getCompound(direction.name().toLowerCase() + "State"));
+			}
+
+			if (tag.contains(direction.toString() + "Direction")) {
+				tempDirection = Direction.byName(tag.getString(direction.name().toLowerCase() + "Direction"));
 			}
 
 			BakedModel fullModel = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState);
-
-			List<BakedQuad> abqList = fullModel.getQuads(tempState, direction, randomSupplier.get());
+			List<BakedQuad> abqList = fullModel.getQuads(tempState, tempDirection, randomSupplier.get());
 
 			BlockColors colors = MinecraftClient.getInstance().getBlockColors();
 			int color = 0xFF00_0000 | colors.getColor(tempState, blockView, pos, 0xFF);
