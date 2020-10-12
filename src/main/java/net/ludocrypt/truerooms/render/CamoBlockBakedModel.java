@@ -37,7 +37,7 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 
 	@Override
 	public boolean hasDepth() {
-		return false;
+		return true;
 	}
 
 	@Override
