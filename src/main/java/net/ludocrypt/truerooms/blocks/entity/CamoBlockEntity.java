@@ -5,10 +5,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.fabricmc.fabric.api.renderer.v1.Renderer;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
@@ -212,12 +209,12 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempState;
 	}
 
-	public Mesh getMesh(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier,
+	public void renderBlock(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier,
 			RenderContext context) {
 
-		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
-		MeshBuilder builder = renderer.meshBuilder();
-		QuadEmitter emitter = builder.getEmitter();
+//		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+//		MeshBuilder builder = renderer.meshBuilder();
+		QuadEmitter emitter = context.getEmitter();
 
 		CompoundTag tag = serialize(new CompoundTag());
 
@@ -233,39 +230,26 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 			List<BakedQuad> abqList = fullModel.getQuads(tempState, direction, randomSupplier.get());
 
-			if (0 < abqList.toArray().length) {
+			BlockColors colors = MinecraftClient.getInstance().getBlockColors();
+			int color = 0xFF00_0000 | colors.getColor(tempState, blockView, pos, 0xFF);
 
-				BlockColors colors = MinecraftClient.getInstance().getBlockColors();
-				int color = colors.getColor(tempState, blockView, pos, 0);
+			for (BakedQuad quad : abqList) {
 
-				int whatColor = 0xFF00_0000 | color;
+				Sprite quadSprite = ((AccessibleBakedQuad) quad).getSprite();
 
-				for (BakedQuad quad : abqList) {
+				emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+				emitter.spriteBake(0, quadSprite, MutableQuadView.BAKE_LOCK_UV);
 
-					Sprite quadSprite = ((AccessibleBakedQuad) quad).getSprite();
-
-					emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-					emitter.spriteBake(0, quadSprite, MutableQuadView.BAKE_LOCK_UV);
-
-					if (quad.hasColor()) {
-						emitter.colorIndex(0);
-						emitter.spriteColor(0, whatColor, whatColor, whatColor, whatColor);
-					} else {
-						emitter.colorIndex(-1);
-						emitter.spriteColor(0, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF);
-					}
-
+				if (quad.hasColor()) {
+					emitter.colorIndex(0);
+					emitter.spriteColor(0, color, color, color, color);
+				} else {
+					emitter.colorIndex(-1);
+					emitter.spriteColor(0, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF);
 				}
-
+				emitter.emit();
 			}
-
-			emitter.emit();
-
 		}
-
-		this.mesh = builder.build();
-
-		return this.mesh;
 	}
 
 	@Override

@@ -72,27 +72,6 @@ public class GhostBlock extends BlockWithEntity {
 				blockEntity.setState(Blocks.STONE.getDefaultState());
 				break;
 			}
-
-//			if (world.getBlockState(pos.down()) != this.getDefaultState()
-//					&& world.getBlockState(pos.up()) != this.getDefaultState()) {
-//				if (world.getBlockState(pos.down()).isOpaque()) {
-//					blockEntity.setState(world.getBlockState(pos.down()));
-//				} else if (world.getBlockState(pos.up()).isOpaque()) {
-//					blockEntity.setState(world.getBlockState(pos.up()));
-//				} else {
-//					blockEntity.setState(Blocks.STONE.getDefaultState());
-//				}
-//			} else {
-//				if (world.getBlockEntity(pos.down()) instanceof CamoBlockEntity) {
-//					CamoBlockEntity blockEntityDown = (CamoBlockEntity) world.getBlockEntity(pos.down());
-//					blockEntity.setState(blockEntityDown.getState(Direction.UP));
-//				} else {
-//					if (world.getBlockEntity(pos.up()) instanceof CamoBlockEntity) {
-//						CamoBlockEntity blockEntityUp = (CamoBlockEntity) world.getBlockEntity(pos.up());
-//						blockEntity.setState(blockEntityUp.getState(Direction.UP));
-//					}
-//				}
-//			}
 		}
 	}
 

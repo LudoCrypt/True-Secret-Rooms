@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
@@ -12,6 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.json.ModelOverrideList;
@@ -77,8 +79,7 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 			Supplier<Random> randomSupplier, RenderContext context) {
 		BlockEntity entity = blockView.getBlockEntity(pos);
 		if (entity instanceof CamoBlockEntity) {
-			context.meshConsumer()
-					.accept(((CamoBlockEntity) entity).getMesh(blockView, state, pos, randomSupplier, context));
+			((CamoBlockEntity) entity).renderBlock(blockView, state, pos, randomSupplier, context);
 		}
 	}
 
