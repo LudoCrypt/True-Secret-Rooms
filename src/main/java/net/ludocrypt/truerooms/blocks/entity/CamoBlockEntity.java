@@ -239,11 +239,12 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			BlockColors colors = MinecraftClient.getInstance().getBlockColors();
 			int color = colors.getColor(tempState, blockView, pos, 0);
 
-			emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+//			emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+//			emitter.spriteBake(0, spr, MutableQuadView.BAKE_LOCK_UV);
 
-			emitter.spriteBake(0, spr, MutableQuadView.BAKE_LOCK_UV);
+			emitter.fromVanilla(abq.getVertexData(), 0, false);
 
-			if (emitter.colorIndex() != -1) {
+			if (abq.hasColor()) {
 				emitter.spriteColor(0, color, color, color, color);
 			} else {
 				emitter.spriteColor(0, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF);
