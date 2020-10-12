@@ -18,6 +18,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtHelper;
@@ -228,10 +229,11 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 			Sprite spr = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState).getSprite();
 
-			if (((AccessibleBakedQuad) (MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState)
-					.getQuads(tempState, direction, randomSupplier.get())).get(0)) != null) {
-				spr = ((AccessibleBakedQuad) (MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState)
-						.getQuads(tempState, direction, randomSupplier.get())).get(0)).getSprite();
+			BakedQuad abq = (MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState)
+					.getQuads(tempState, direction, randomSupplier.get())).get(0);
+
+			if (abq != null) {
+				spr = ((AccessibleBakedQuad) abq).getSprite();
 			}
 
 			BlockColors colors = MinecraftClient.getInstance().getBlockColors();
@@ -241,7 +243,11 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 			emitter.spriteBake(0, spr, MutableQuadView.BAKE_LOCK_UV);
 
-			emitter.spriteColor(0, -1, -1, -1, -1);
+			if (emitter.colorIndex() != -1) {
+				emitter.spriteColor(0, color, color, color, color);
+			} else {
+				emitter.spriteColor(0, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF);
+			}
 
 			emitter.emit();
 
