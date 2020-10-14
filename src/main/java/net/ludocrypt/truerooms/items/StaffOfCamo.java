@@ -31,10 +31,7 @@ public class StaffOfCamo extends Item {
 		ItemStack itemStack = context.getStack();
 		Direction dir = context.getSide();
 
-		if (block != Blocks.AIR && blockState.isFullCube(world, blockPos)) {
-			putStateAndDirection(itemStack, blockState, dir);
-			return ActionResult.SUCCESS;
-		} else if (block instanceof CamoBlock) {
+		if (block instanceof CamoBlock) {
 			if (world.getBlockEntity(blockPos) instanceof CamoBlockEntity) {
 				CamoBlockEntity camoBlockEntity = (CamoBlockEntity) world.getBlockEntity(blockPos);
 				if (itemStack.hasTag()) {
@@ -44,11 +41,13 @@ public class StaffOfCamo extends Item {
 					BlockState stateAdjacent = camoBlockEntity.getState(dir);
 					putStateAndDirection(itemStack, stateAdjacent, dir);
 				}
-
 				return ActionResult.SUCCESS;
 			} else {
 				return ActionResult.FAIL;
 			}
+		} else if (block != Blocks.AIR && blockState.isFullCube(world, blockPos)) {
+			putStateAndDirection(itemStack, blockState, dir);
+			return ActionResult.SUCCESS;
 		} else {
 			return ActionResult.FAIL;
 		}
@@ -57,7 +56,7 @@ public class StaffOfCamo extends Item {
 	private static void putStateAndDirection(ItemStack itemStack, BlockState state, Direction dir) {
 		CompoundTag tag = itemStack.getOrCreateTag();
 		tag.put("setState", NbtHelper.fromBlockState(state));
-		tag.putString("setDirection", dir.name());
+		tag.putString("setDirection", dir.name().toLowerCase());
 	}
 
 	private static BlockState getState(ItemStack itemStack) {
@@ -67,27 +66,10 @@ public class StaffOfCamo extends Item {
 	private static Direction getDirection(ItemStack itemStack) {
 
 		CompoundTag tag = itemStack.getOrCreateTag();
-		System.out.println(tag.getString("upDirection"));
-
 		Direction tempDir = Direction.NORTH;
 
-		if (tag.contains("upDirection", 8)) {
-			tempDir = Direction.byName(tag.getString("upDirection"));
-		}
-		if (tag.contains("downDirection", 8)) {
-			tempDir = Direction.byName(tag.getString("downDirection"));
-		}
-		if (tag.contains("northDirection", 8)) {
-			tempDir = Direction.byName(tag.getString("northDirection"));
-		}
-		if (tag.contains("eastDirection", 8)) {
-			tempDir = Direction.byName(tag.getString("eastDirection"));
-		}
-		if (tag.contains("southDirection", 8)) {
-			tempDir = Direction.byName(tag.getString("southDirection"));
-		}
-		if (tag.contains("westDirection", 8)) {
-			tempDir = Direction.byName(tag.getString("westDirection"));
+		if (tag.contains("setDirection", 8)) {
+			tempDir = Direction.byName(tag.getString("setDirection"));
 		}
 
 		return tempDir;

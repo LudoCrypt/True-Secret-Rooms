@@ -42,7 +42,7 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 
 	@Override
 	public boolean isSideLit() {
-		return false;
+		return true;
 	}
 
 	@Override

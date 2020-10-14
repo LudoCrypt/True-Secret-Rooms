@@ -10,12 +10,12 @@ import net.minecraft.util.Identifier;
 public class CamoBlockResourceProvider implements ModelResourceProvider {
 
 	public static final CamoBlockUnbakedModel CAMO_MODEL = new CamoBlockUnbakedModel();
-	public static final Identifier GHOST_BLOCK_BLOCK = SecretRooms.id("block/ghost_block");
+	public static final Identifier CAMO_BLOCK = SecretRooms.id("block/camo_block");
 
 	@Override
 	public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext)
 			throws ModelProviderException {
-		if (identifier.equals(GHOST_BLOCK_BLOCK)) {
+		if (identifier.equals(CAMO_BLOCK)) {
 			return CAMO_MODEL;
 		} else {
 			return null;

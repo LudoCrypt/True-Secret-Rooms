@@ -5,14 +5,17 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.ludocrypt.truerooms.SecretRooms;
+import net.ludocrypt.truerooms.blocks.DoorBlock;
+import net.ludocrypt.truerooms.blocks.TrapdoorBlock;
 import net.ludocrypt.truerooms.mixin.AccessibleBakedQuad;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.block.enums.DoorHinge;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.render.model.BakedModel;
@@ -384,8 +387,15 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 				Sprite quadSprite = ((AccessibleBakedQuad) quad).getSprite();
 
-				emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-				emitter.spriteBake(0, quadSprite, MutableQuadView.BAKE_LOCK_UV);
+				if (state.getBlock() instanceof DoorBlock) {
+					renderDoor(emitter, state, direction);
+				} else if (state.getBlock() instanceof TrapdoorBlock) {
+					renderTrapdoor(emitter, state, direction);
+				} else {
+					emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+				}
+
+				emitter.spriteBake(0, quadSprite, 4);
 
 				if (quad.hasColor()) {
 					emitter.colorIndex(0);
@@ -394,7 +404,164 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 					emitter.colorIndex(-1);
 					emitter.spriteColor(0, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF, 0xFFFF_FFFF);
 				}
+
 				emitter.emit();
+			}
+		}
+	}
+
+	private void renderDoorCuboid(QuadEmitter emitter, Direction faceDirection, Direction cuboidDirection) {
+		switch (cuboidDirection) {
+
+		case NORTH:
+
+			if (faceDirection == Direction.NORTH) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0f);
+			} else if (faceDirection == Direction.SOUTH) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0.8125f);
+			} else if (faceDirection == Direction.EAST) {
+				emitter.square(faceDirection, 0.8125f, 0.0f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.WEST) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 0.1875f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.UP) {
+				emitter.square(faceDirection, 0.0f, 0.8125f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.DOWN) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 0.1875f, 0.0f);
+			}
+			break;
+
+		case EAST:
+
+			if (faceDirection == Direction.NORTH) {
+				emitter.square(faceDirection, 0.8125f, 0.0f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.SOUTH) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 0.1875f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.EAST) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0f);
+			} else if (faceDirection == Direction.WEST) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0.8125f);
+			} else if (faceDirection == Direction.UP) {
+				emitter.square(faceDirection, 0.8125f, 0.0f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.DOWN) {
+				emitter.square(faceDirection, 0.8125f, 0.0f, 1.0f, 1.0f, 0.0f);
+			}
+			break;
+
+		case SOUTH:
+
+			if (faceDirection == Direction.SOUTH) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0f);
+			} else if (faceDirection == Direction.NORTH) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0.8125f);
+			} else if (faceDirection == Direction.WEST) {
+				emitter.square(faceDirection, 0.8125f, 0.0f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.EAST) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 0.1875f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.DOWN) {
+				emitter.square(faceDirection, 0.0f, 0.8125f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.UP) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 0.1875f, 0.0f);
+			}
+			break;
+
+		case WEST:
+
+			if (faceDirection == Direction.SOUTH) {
+				emitter.square(faceDirection, 0.8125f, 0.0f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.NORTH) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 0.1875f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.WEST) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0f);
+			} else if (faceDirection == Direction.EAST) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0.8125f);
+			} else if (faceDirection == Direction.UP) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 0.1875f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.DOWN) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 0.1875f, 1.0f, 0.0f);
+			}
+			break;
+
+		case UP:
+
+			if (faceDirection == Direction.SOUTH) {
+				emitter.square(faceDirection, 0.0f, 0.8125f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.NORTH) {
+				emitter.square(faceDirection, 0.0f, 0.8125f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.WEST) {
+				emitter.square(faceDirection, 0.0f, 0.8125f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.EAST) {
+				emitter.square(faceDirection, 0.0f, 0.8125f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.UP) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.DOWN) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0.8125f);
+			}
+			break;
+
+		case DOWN:
+
+			if (faceDirection == Direction.SOUTH) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 0.1875f, 0.0f);
+			} else if (faceDirection == Direction.NORTH) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 0.1875f, 0.0f);
+			} else if (faceDirection == Direction.WEST) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 0.1875f, 0.0f);
+			} else if (faceDirection == Direction.EAST) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 0.1875f, 0.0f);
+			} else if (faceDirection == Direction.DOWN) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+			} else if (faceDirection == Direction.UP) {
+				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0.8125f);
+			}
+			break;
+
+		}
+	}
+
+	private void renderDoor(QuadEmitter emitter, BlockState state, Direction direction) {
+
+		Direction renderDirection = Direction.EAST;
+
+		if ((state.get(DoorBlock.FACING) == Direction.NORTH && !state.get(DoorBlock.OPEN))
+				|| (state.get(DoorBlock.FACING) == Direction.EAST && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT
+						&& state.get(DoorBlock.OPEN))
+				|| (state.get(DoorBlock.FACING) == Direction.WEST && state.get(DoorBlock.HINGE) == DoorHinge.LEFT
+						&& state.get(DoorBlock.OPEN))) {
+			renderDirection = Direction.SOUTH;
+		} else if ((state.get(DoorBlock.FACING) == Direction.EAST && !state.get(DoorBlock.OPEN))
+				|| (state.get(DoorBlock.FACING) == Direction.SOUTH && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT
+						&& state.get(DoorBlock.OPEN))
+				|| (state.get(DoorBlock.FACING) == Direction.NORTH && state.get(DoorBlock.HINGE) == DoorHinge.LEFT
+						&& state.get(DoorBlock.OPEN))) {
+			renderDirection = Direction.WEST;
+		} else if ((state.get(DoorBlock.FACING) == Direction.SOUTH && !state.get(DoorBlock.OPEN))
+				|| (state.get(DoorBlock.FACING) == Direction.WEST && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT
+						&& state.get(DoorBlock.OPEN))
+				|| (state.get(DoorBlock.FACING) == Direction.EAST && state.get(DoorBlock.HINGE) == DoorHinge.LEFT
+						&& state.get(DoorBlock.OPEN))) {
+			renderDirection = Direction.NORTH;
+		} else if ((state.get(DoorBlock.FACING) == Direction.WEST && !state.get(DoorBlock.OPEN))
+				|| (state.get(DoorBlock.FACING) == Direction.NORTH && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT
+						&& state.get(DoorBlock.OPEN))
+				|| (state.get(DoorBlock.FACING) == Direction.SOUTH && state.get(DoorBlock.HINGE) == DoorHinge.LEFT
+						&& state.get(DoorBlock.OPEN))) {
+			renderDirection = Direction.EAST;
+		} else {
+			renderDirection = Direction.NORTH;
+		}
+
+		renderDoorCuboid(emitter, direction, renderDirection);
+
+	}
+
+	private void renderTrapdoor(QuadEmitter emitter, BlockState state, Direction direction) {
+		if (state.get(TrapdoorBlock.OPEN)) {
+			renderDoorCuboid(emitter, direction, state.get(TrapdoorBlock.FACING).getOpposite());
+		} else {
+			if (state.get(TrapdoorBlock.HALF) == BlockHalf.TOP) {
+				renderDoorCuboid(emitter, direction, Direction.UP);
+			} else if (state.get(TrapdoorBlock.HALF) == BlockHalf.BOTTOM) {
+				renderDoorCuboid(emitter, direction, Direction.DOWN);
 			}
 		}
 	}

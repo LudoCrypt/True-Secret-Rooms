@@ -14,7 +14,7 @@ import net.minecraft.world.BlockView;
 public class GhostBlock extends CamoBlock {
 
 	public GhostBlock() {
-		super(FabricBlockSettings.of(Material.GOURD).sounds(BlockSoundGroup.WOOL).hardness(1).resistance(2));
+		super(FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
 	}
 
 	@Override

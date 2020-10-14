@@ -15,7 +15,7 @@ public class SecretRoomsClient implements ClientModInitializer {
 	public void onInitializeClient() {
 
 		ModelLoadingRegistry.INSTANCE.registerResourceProvider(rm -> new CamoBlockResourceProvider());
-		BlockRenderLayerMap.INSTANCE.putBlock(SecretRooms.GHOST_BLOCK, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getTranslucent(), SecretRooms.camoBlocksList);
 
 	}
 

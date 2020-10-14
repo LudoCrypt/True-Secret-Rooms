@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "truerooms:solid_block"
+		},
+		{
+			"tag": "minecraft:slabs"
+		}
+	],
+	"result": {
+		"item": "truerooms:slab_block",
+		"count": 1
+	}
+}

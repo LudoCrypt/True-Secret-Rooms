@@ -49,15 +49,15 @@ public class CamoBlock extends BlockWithEntity {
 				BlockState blockState = client.world.getBlockState(blockPos);
 				Block block = blockState.getBlock();
 
-				if (block != Blocks.AIR && blockState.isFullCube(world, blockPos)) {
-					blockEntity.setState(blockState);
-				} else if (block == this) {
+				if (block instanceof CamoBlock) {
 					if (world.getBlockEntity(blockPos) instanceof CamoBlockEntity) {
 						CamoBlockEntity blockEntityAdjacent = (CamoBlockEntity) world.getBlockEntity(blockPos);
 						blockEntity.setState(blockEntityAdjacent.getState(blockHit.getSide()));
 					} else {
 						blockEntity.setState(Blocks.STONE.getDefaultState());
 					}
+				} else if (block != Blocks.AIR && blockState.isFullCube(world, blockPos)) {
+					blockEntity.setState(blockState);
 				} else {
 					blockEntity.setState(Blocks.STONE.getDefaultState());
 				}

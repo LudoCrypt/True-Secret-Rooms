@@ -7,7 +7,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.ludocrypt.truerooms.blocks.GhostBlock;
+import net.ludocrypt.truerooms.blocks.CamoBlock;
+import net.ludocrypt.truerooms.blocks.DoorBlock;
+import net.ludocrypt.truerooms.blocks.TrapdoorBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -23,9 +25,20 @@ public class DrawSideMixin {
 			CallbackInfoReturnable<Boolean> ci) {
 		BlockPos blockPos = pos.offset(facing);
 		BlockState blockState = world.getBlockState(blockPos);
-		if (!(state.getBlock() instanceof GhostBlock) && blockState.getBlock() instanceof GhostBlock) {
-			ci.setReturnValue(true);
+
+		if ((state.getBlock() instanceof CamoBlock)) {
+			if ((blockState.getBlock() instanceof CamoBlock) && !(blockState.getBlock() instanceof DoorBlock)
+					&& !(blockState.getBlock() instanceof TrapdoorBlock)) {
+				ci.setReturnValue(false);
+			} else if (blockState.getBlock() instanceof DoorBlock || blockState.getBlock() instanceof TrapdoorBlock) {
+				ci.setReturnValue(true);
+			}
+		} else {
+			if ((blockState.getBlock() instanceof CamoBlock)) {
+				ci.setReturnValue(true);
+			}
 		}
+
 	}
 
 }
