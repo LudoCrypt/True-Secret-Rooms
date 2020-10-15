@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "truerooms:solid_block"
+		},
+		{
+			"item": "truerooms:camouflage_paste"
+		},
+		{
+			"item": "minecraft:glass"
+		}
+	],
+	"result": {
+		"item": "truerooms:one_way_glass",
+		"count": 1
+	}
+}

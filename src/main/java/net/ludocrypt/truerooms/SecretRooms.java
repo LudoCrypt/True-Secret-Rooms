@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.ludocrypt.truerooms.blocks.DoorBlock;
 import net.ludocrypt.truerooms.blocks.GhostBlock;
 import net.ludocrypt.truerooms.blocks.HingeGateBlock;
+import net.ludocrypt.truerooms.blocks.OneWayGlassBlock;
 import net.ludocrypt.truerooms.blocks.SlabBlock;
 import net.ludocrypt.truerooms.blocks.SolidBlock;
 import net.ludocrypt.truerooms.blocks.StairBlock;
@@ -32,6 +33,8 @@ public class SecretRooms implements ModInitializer {
 	public static Block GHOST_BLOCK = new GhostBlock();
 	public static Block SOLID_BLOCK = new SolidBlock();
 
+	public static Block ONE_WAY_GLASS = new OneWayGlassBlock();
+
 	public static Block STAIR_BLOCK = new StairBlock(SOLID_BLOCK.getDefaultState());
 	public static Block SLAB_BLOCK = new SlabBlock();
 
@@ -51,7 +54,8 @@ public class SecretRooms implements ModInitializer {
 			FabricBlockSettings.of(Material.METAL).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
 
 	public static final Block[] camoBlocksList = { GHOST_BLOCK, SOLID_BLOCK, STAIR_BLOCK, SLAB_BLOCK, DOOR_BLOCK,
-			IRON_DOOR_BLOCK, TRAPDOOR_BLOCK, IRON_TRAPDOOR_BLOCK, HINGE_GATE_BLOCK, IRON_HINGE_GATE_BLOCK };
+			IRON_DOOR_BLOCK, TRAPDOOR_BLOCK, IRON_TRAPDOOR_BLOCK, HINGE_GATE_BLOCK, IRON_HINGE_GATE_BLOCK,
+			ONE_WAY_GLASS };
 
 	public static final ItemGroup SECRET_BLOCKS_GROUP = FabricItemGroupBuilder.create(id("secret_blocks"))
 			.icon(() -> new ItemStack(SecretRooms.CAMOUFLAGE_PASTE)).build();
@@ -74,6 +78,8 @@ public class SecretRooms implements ModInitializer {
 		Registry.register(Registry.BLOCK, id("ghost_block"), GHOST_BLOCK);
 		Registry.register(Registry.BLOCK, id("solid_block"), SOLID_BLOCK);
 
+		Registry.register(Registry.BLOCK, id("one_way_glass"), ONE_WAY_GLASS);
+
 		Registry.register(Registry.BLOCK, id("stair_block"), STAIR_BLOCK);
 		Registry.register(Registry.BLOCK, id("slab_block"), SLAB_BLOCK);
 
@@ -90,6 +96,9 @@ public class SecretRooms implements ModInitializer {
 				new BlockItem(GHOST_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));
 		Registry.register(Registry.ITEM, id("solid_block"),
 				new BlockItem(SOLID_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));
+
+		Registry.register(Registry.ITEM, id("one_way_glass"),
+				new BlockItem(ONE_WAY_GLASS, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));
 
 		Registry.register(Registry.ITEM, id("stair_block"),
 				new BlockItem(STAIR_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));

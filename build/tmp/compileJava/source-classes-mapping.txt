@@ -16,6 +16,8 @@ net/ludocrypt/truerooms/blocks/TrapdoorBlock.java
 net/ludocrypt/truerooms/blocks/StairBlock.java
  net.ludocrypt.truerooms.blocks.StairBlock
  net.ludocrypt.truerooms.blocks.StairBlock$1
+net/ludocrypt/truerooms/blocks/OneWayGlassBlock.java
+ net.ludocrypt.truerooms.blocks.OneWayGlassBlock
 net/ludocrypt/truerooms/render/CamoBlockBakedModel.java
  net.ludocrypt.truerooms.render.CamoBlockBakedModel
 net/ludocrypt/truerooms/blocks/DoorBlock.java
