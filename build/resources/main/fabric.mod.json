@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "truerooms",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"name": "True Secret Rooms",
 	"description": "Like the secret rooms mod, but for fabric",
 	"authors": [

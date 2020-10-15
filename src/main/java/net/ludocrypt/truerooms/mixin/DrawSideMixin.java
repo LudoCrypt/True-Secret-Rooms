@@ -10,6 +10,7 @@ import net.fabricmc.api.Environment;
 import net.ludocrypt.truerooms.blocks.CamoBlock;
 import net.ludocrypt.truerooms.blocks.DoorBlock;
 import net.ludocrypt.truerooms.blocks.HingeGateBlock;
+import net.ludocrypt.truerooms.blocks.OneWayGlassBlock;
 import net.ludocrypt.truerooms.blocks.TrapdoorBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -28,17 +29,20 @@ public class DrawSideMixin {
 		BlockState blockState = world.getBlockState(blockPos);
 
 		if ((state.getBlock() instanceof CamoBlock)) {
-			if ((blockState.getBlock() instanceof CamoBlock) && !(blockState.getBlock() instanceof DoorBlock)
+			if (((blockState.getBlock() instanceof CamoBlock) && !(blockState.getBlock() instanceof DoorBlock)
 					&& !(blockState.getBlock() instanceof TrapdoorBlock)
-					&& !(blockState.getBlock() instanceof HingeGateBlock)) {
+					&& !(blockState.getBlock() instanceof HingeGateBlock)
+					&& !(blockState.getBlock() instanceof OneWayGlassBlock))) {
 				ci.setReturnValue(false);
-			} else if (blockState.getBlock() instanceof DoorBlock || blockState.getBlock() instanceof TrapdoorBlock
-					|| blockState.getBlock() instanceof HingeGateBlock) {
+			} else if ((blockState.getBlock() instanceof DoorBlock || blockState.getBlock() instanceof TrapdoorBlock
+					|| blockState.getBlock() instanceof HingeGateBlock)
+					|| (blockState.getBlock() instanceof OneWayGlassBlock
+							&& !(state.getBlock() instanceof OneWayGlassBlock))) {
 				ci.setReturnValue(true);
 			}
 		} else {
 			if ((blockState.getBlock() instanceof CamoBlock)) {
-				ci.setReturnValue(true);
+				ci.setReturnValue(false);
 			}
 		}
 
