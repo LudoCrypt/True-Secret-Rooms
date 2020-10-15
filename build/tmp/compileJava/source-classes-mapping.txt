@@ -1,0 +1,41 @@
+net/ludocrypt/truerooms/blocks/CamoBlock.java
+ net.ludocrypt.truerooms.blocks.CamoBlock
+ net.ludocrypt.truerooms.blocks.CamoBlock$1
+net/ludocrypt/truerooms/blocks/entity/CamoBlockEntity.java
+ net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity
+ net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity$1
+net/ludocrypt/truerooms/mixin/DrawSideMixin.java
+ net.ludocrypt.truerooms.mixin.DrawSideMixin
+net/ludocrypt/truerooms/SecretRoomsClient.java
+ net.ludocrypt.truerooms.SecretRoomsClient
+net/ludocrypt/truerooms/blocks/GhostBlock.java
+ net.ludocrypt.truerooms.blocks.GhostBlock
+net/ludocrypt/truerooms/blocks/TrapdoorBlock.java
+ net.ludocrypt.truerooms.blocks.TrapdoorBlock
+ net.ludocrypt.truerooms.blocks.TrapdoorBlock$1
+net/ludocrypt/truerooms/blocks/StairBlock.java
+ net.ludocrypt.truerooms.blocks.StairBlock
+ net.ludocrypt.truerooms.blocks.StairBlock$1
+net/ludocrypt/truerooms/render/CamoBlockBakedModel.java
+ net.ludocrypt.truerooms.render.CamoBlockBakedModel
+net/ludocrypt/truerooms/blocks/DoorBlock.java
+ net.ludocrypt.truerooms.blocks.DoorBlock
+ net.ludocrypt.truerooms.blocks.DoorBlock$1
+net/ludocrypt/truerooms/render/CamoBlockResourceProvider.java
+ net.ludocrypt.truerooms.render.CamoBlockResourceProvider
+net/ludocrypt/truerooms/SecretRooms.java
+ net.ludocrypt.truerooms.SecretRooms
+net/ludocrypt/truerooms/items/StaffOfCamo.java
+ net.ludocrypt.truerooms.items.StaffOfCamo
+net/ludocrypt/truerooms/mixin/AccessibleBakedQuad.java
+ net.ludocrypt.truerooms.mixin.AccessibleBakedQuad
+net/ludocrypt/truerooms/blocks/SlabBlock.java
+ net.ludocrypt.truerooms.blocks.SlabBlock
+ net.ludocrypt.truerooms.blocks.SlabBlock$1
+net/ludocrypt/truerooms/blocks/HingeGateBlock.java
+ net.ludocrypt.truerooms.blocks.HingeGateBlock
+ net.ludocrypt.truerooms.blocks.HingeGateBlock$1
+net/ludocrypt/truerooms/blocks/SolidBlock.java
+ net.ludocrypt.truerooms.blocks.SolidBlock
+net/ludocrypt/truerooms/render/CamoBlockUnbakedModel.java
+ net.ludocrypt.truerooms.render.CamoBlockUnbakedModel

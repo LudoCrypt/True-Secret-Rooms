@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.ludocrypt.truerooms.blocks.DoorBlock;
 import net.ludocrypt.truerooms.blocks.GhostBlock;
+import net.ludocrypt.truerooms.blocks.HingeGateBlock;
 import net.ludocrypt.truerooms.blocks.SlabBlock;
 import net.ludocrypt.truerooms.blocks.SolidBlock;
 import net.ludocrypt.truerooms.blocks.StairBlock;
@@ -19,7 +20,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
@@ -40,16 +40,21 @@ public class SecretRooms implements ModInitializer {
 	public static Block IRON_DOOR_BLOCK = new DoorBlock(
 			FabricBlockSettings.of(Material.METAL).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
 
+	public static Block HINGE_GATE_BLOCK = new HingeGateBlock(
+			FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
+	public static Block IRON_HINGE_GATE_BLOCK = new HingeGateBlock(
+			FabricBlockSettings.of(Material.METAL).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
+
 	public static Block TRAPDOOR_BLOCK = new TrapdoorBlock(
 			FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
 	public static Block IRON_TRAPDOOR_BLOCK = new TrapdoorBlock(
 			FabricBlockSettings.of(Material.METAL).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
 
-	public static final ItemGroup SECRET_BLOCKS_GROUP = FabricItemGroupBuilder.build(id("secret_blocks"),
-			() -> new ItemStack(Items.KNOWLEDGE_BOOK));
-
 	public static final Block[] camoBlocksList = { GHOST_BLOCK, SOLID_BLOCK, STAIR_BLOCK, SLAB_BLOCK, DOOR_BLOCK,
-			IRON_DOOR_BLOCK, TRAPDOOR_BLOCK, IRON_TRAPDOOR_BLOCK };
+			IRON_DOOR_BLOCK, TRAPDOOR_BLOCK, IRON_TRAPDOOR_BLOCK, HINGE_GATE_BLOCK, IRON_HINGE_GATE_BLOCK };
+
+	public static final ItemGroup SECRET_BLOCKS_GROUP = FabricItemGroupBuilder.create(id("secret_blocks"))
+			.icon(() -> new ItemStack(SecretRooms.CAMOUFLAGE_PASTE)).build();
 
 	public static Item CAMOLOCK_EYE = new Item(new Item.Settings().group(SECRET_BLOCKS_GROUP).rarity(Rarity.UNCOMMON));
 
@@ -75,6 +80,9 @@ public class SecretRooms implements ModInitializer {
 		Registry.register(Registry.BLOCK, id("door_block"), DOOR_BLOCK);
 		Registry.register(Registry.BLOCK, id("iron_door_block"), IRON_DOOR_BLOCK);
 
+		Registry.register(Registry.BLOCK, id("hinge_gate_block"), HINGE_GATE_BLOCK);
+		Registry.register(Registry.BLOCK, id("iron_hinge_gate_block"), IRON_HINGE_GATE_BLOCK);
+
 		Registry.register(Registry.BLOCK, id("trapdoor_block"), TRAPDOOR_BLOCK);
 		Registry.register(Registry.BLOCK, id("iron_trapdoor_block"), IRON_TRAPDOOR_BLOCK);
 
@@ -92,6 +100,11 @@ public class SecretRooms implements ModInitializer {
 				new BlockItem(DOOR_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));
 		Registry.register(Registry.ITEM, id("iron_door_block"),
 				new BlockItem(IRON_DOOR_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));
+
+		Registry.register(Registry.ITEM, id("hinge_gate_block"),
+				new BlockItem(HINGE_GATE_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));
+		Registry.register(Registry.ITEM, id("iron_hinge_gate_block"),
+				new BlockItem(IRON_HINGE_GATE_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));
 
 		Registry.register(Registry.ITEM, id("trapdoor_block"),
 				new BlockItem(TRAPDOOR_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));

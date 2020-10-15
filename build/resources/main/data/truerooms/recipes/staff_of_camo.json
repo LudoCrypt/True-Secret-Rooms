@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"#",
+		"T"
+	],
+	"key": {
+		"#": {
+			"item": "truerooms:camolock_eye"
+		},
+		"T": {
+			"item": "minecraft:trident"
+		}
+	},
+	"result": {
+		"item": "truerooms:staff_of_camo",
+		"count": 1
+	}
+}

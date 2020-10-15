@@ -1,0 +1,33 @@
+{
+	"display": {
+		"background": "minecraft:textures/block/farmland_moist.png",
+		"icon": {
+			"item": "truerooms:camouflage_paste"
+		},
+		"title": {
+			"translate": "advancements.truerooms.root.title"
+		},
+		"description": {
+			"translate": "advancements.truerooms.root.descr"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": true,
+		"hidden": false
+	},
+	"criteria": {
+		"wall": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"item": "truerooms:camouflage_paste"
+					}
+				]
+			}
+		}
+	},
+	"rewards": {
+		"experience": 5
+	}
+}

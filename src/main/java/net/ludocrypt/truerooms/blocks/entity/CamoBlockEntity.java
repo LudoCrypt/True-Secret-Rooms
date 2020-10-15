@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.ludocrypt.truerooms.SecretRooms;
 import net.ludocrypt.truerooms.blocks.DoorBlock;
+import net.ludocrypt.truerooms.blocks.HingeGateBlock;
 import net.ludocrypt.truerooms.blocks.TrapdoorBlock;
 import net.ludocrypt.truerooms.mixin.AccessibleBakedQuad;
 import net.minecraft.block.BlockState;
@@ -531,7 +532,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 				Sprite quadSprite = ((AccessibleBakedQuad) quad).getSprite();
 
-				if (state.getBlock() instanceof DoorBlock) {
+				if (state.getBlock() instanceof DoorBlock || state.getBlock() instanceof HingeGateBlock) {
 					renderDoor(emitter, state, direction);
 				} else if (state.getBlock() instanceof TrapdoorBlock) {
 					renderTrapdoor(emitter, state, direction);

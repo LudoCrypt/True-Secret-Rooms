@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "truerooms",
+	"version": "1.0.0",
+	"name": "True Secret Rooms",
+	"description": "Like the secret rooms mod, but for fabric",
+	"authors": [
+		"LudoCrypt"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/truerooms/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.ludocrypt.truerooms.SecretRooms"
+		],
+		"client": [
+			"net.ludocrypt.truerooms.SecretRoomsClient"
+		]
+	},
+	"mixins": [
+		"truerooms.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.7.4",
+		"fabric": "*",
+		"minecraft": "1.16.x"
+	},
+	"suggests": {
+		"flamingo": "*"
+	}
+}

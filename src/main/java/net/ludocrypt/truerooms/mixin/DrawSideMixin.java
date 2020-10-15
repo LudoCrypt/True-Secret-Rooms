@@ -9,6 +9,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.ludocrypt.truerooms.blocks.CamoBlock;
 import net.ludocrypt.truerooms.blocks.DoorBlock;
+import net.ludocrypt.truerooms.blocks.HingeGateBlock;
 import net.ludocrypt.truerooms.blocks.TrapdoorBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -28,9 +29,11 @@ public class DrawSideMixin {
 
 		if ((state.getBlock() instanceof CamoBlock)) {
 			if ((blockState.getBlock() instanceof CamoBlock) && !(blockState.getBlock() instanceof DoorBlock)
-					&& !(blockState.getBlock() instanceof TrapdoorBlock)) {
+					&& !(blockState.getBlock() instanceof TrapdoorBlock)
+					&& !(blockState.getBlock() instanceof HingeGateBlock)) {
 				ci.setReturnValue(false);
-			} else if (blockState.getBlock() instanceof DoorBlock || blockState.getBlock() instanceof TrapdoorBlock) {
+			} else if (blockState.getBlock() instanceof DoorBlock || blockState.getBlock() instanceof TrapdoorBlock
+					|| blockState.getBlock() instanceof HingeGateBlock) {
 				ci.setReturnValue(true);
 			}
 		} else {
