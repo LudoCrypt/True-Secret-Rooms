@@ -44,6 +44,13 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	public Direction southDirection = Direction.SOUTH;
 	public Direction westDirection = Direction.WEST;
 
+	public int upRotation = 180;
+	public int downRotation = 0;
+	public int northRotation = 0;
+	public int eastRotation = 0;
+	public int southRotation = 0;
+	public int westRotation = 0;
+
 	public CamoBlockEntity() {
 		super(SecretRooms.CAMO_BLOCK_ENTITY);
 	}
@@ -91,6 +98,15 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		tag.putString("southDirection", southDirection.getName());
 		tag.putString("westDirection", westDirection.getName());
 
+		// Separation
+
+		tag.putInt("upRotation", upRotation);
+		tag.putInt("downRotation", downRotation);
+		tag.putInt("northRotation", northRotation);
+		tag.putInt("eastRotation", eastRotation);
+		tag.putInt("southRotation", southRotation);
+		tag.putInt("westRotation", westRotation);
+
 		return tag;
 
 	}
@@ -135,6 +151,27 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		}
 		if (tag.contains("westDirection")) {
 			westDirection = Direction.byName(tag.getString("westDirection"));
+		}
+
+		// Separation
+
+		if (tag.contains("upRotation")) {
+			upRotation = tag.getInt("upRotation");
+		}
+		if (tag.contains("downRotation")) {
+			downRotation = tag.getInt("downRotation");
+		}
+		if (tag.contains("northRotation")) {
+			northRotation = tag.getInt("northRotation");
+		}
+		if (tag.contains("eastRotation")) {
+			eastRotation = tag.getInt("eastRotation");
+		}
+		if (tag.contains("southRotation")) {
+			southRotation = tag.getInt("southRotation");
+		}
+		if (tag.contains("southRotation")) {
+			westRotation = tag.getInt("southRotation");
 		}
 
 	}
@@ -357,6 +394,108 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempDir;
 	}
 
+	@SuppressWarnings("resource")
+	public void setRotation(Direction dir, int rotation) {
+		switch (dir) {
+		case UP:
+			this.upRotation = rotation;
+			break;
+		case DOWN:
+			this.downRotation = rotation;
+			break;
+		case NORTH:
+			this.northRotation = rotation;
+			break;
+		case EAST:
+			this.eastRotation = rotation;
+			break;
+		case SOUTH:
+			this.southRotation = rotation;
+			break;
+		case WEST:
+			this.westRotation = rotation;
+			break;
+		}
+		if (!world.isClient) {
+			sync();
+		} else {
+			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
+					pos.getX(), pos.getY(), pos.getZ());
+		}
+	}
+
+	@SuppressWarnings("resource")
+	public void setRotation(int rotation) {
+		this.upRotation = rotation;
+		this.downRotation = rotation;
+		this.northRotation = rotation;
+		this.eastRotation = rotation;
+		this.southRotation = rotation;
+		this.westRotation = rotation;
+		if (!world.isClient) {
+			sync();
+		} else {
+			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
+					pos.getX(), pos.getY(), pos.getZ());
+		}
+	}
+
+	public int getRotation(Direction dir) {
+		int tempInt;
+		switch (dir) {
+		case UP:
+			tempInt = upRotation;
+			break;
+		case DOWN:
+			tempInt = downRotation;
+			break;
+		case NORTH:
+			tempInt = northRotation;
+			break;
+		case EAST:
+			tempInt = eastRotation;
+			break;
+		case SOUTH:
+			tempInt = southRotation;
+			break;
+		case WEST:
+			tempInt = westRotation;
+			break;
+		default:
+			tempInt = upRotation;
+			break;
+		}
+		return tempInt;
+	}
+
+	public static int getRotation(Direction dir, CompoundTag tag) {
+		int tempInt;
+		switch (dir) {
+		case UP:
+			tempInt = tag.getInt("upRotation");
+			break;
+		case DOWN:
+			tempInt = tag.getInt("downRotation");
+			break;
+		case NORTH:
+			tempInt = tag.getInt("northRotation");
+			break;
+		case EAST:
+			tempInt = tag.getInt("eastRotation");
+			break;
+		case SOUTH:
+			tempInt = tag.getInt("southRotation");
+			break;
+		case WEST:
+			tempInt = tag.getInt("westRotation");
+			break;
+		default:
+			tempInt = tag.getInt("upRotation");
+			break;
+		}
+		return tempInt;
+	}
+
 	public void renderBlock(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier,
 			RenderContext context) {
 
@@ -368,13 +507,18 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 			BlockState tempState = Blocks.STONE.getDefaultState();
 			Direction tempDirection = Direction.NORTH;
+			int tempRotation = 0;
 
-			if (tag.contains(direction.toString() + "State")) {
+			if (tag.contains(direction.name().toLowerCase() + "State")) {
 				tempState = NbtHelper.toBlockState(tag.getCompound(direction.name().toLowerCase() + "State"));
 			}
 
-			if (tag.contains(direction.toString() + "Direction")) {
+			if (tag.contains(direction.name().toLowerCase() + "Direction")) {
 				tempDirection = Direction.byName(tag.getString(direction.name().toLowerCase() + "Direction"));
+			}
+
+			if (tag.contains(direction.name().toLowerCase() + "Rotation")) {
+				tempRotation = tag.getInt(direction.name().toLowerCase() + "Rotation");
 			}
 
 			BakedModel fullModel = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState);
@@ -392,10 +536,12 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 				} else if (state.getBlock() instanceof TrapdoorBlock) {
 					renderTrapdoor(emitter, state, direction);
 				} else {
-					emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+					emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0);
 				}
 
 				emitter.spriteBake(0, quadSprite, 4);
+
+				rotateAndFlip(emitter, tempRotation, direction);
 
 				if (quad.hasColor()) {
 					emitter.colorIndex(0);
@@ -564,6 +710,79 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 				renderDoorCuboid(emitter, direction, Direction.DOWN);
 			}
 		}
+	}
+
+	private void rotateAndFlip(QuadEmitter emitter, int rotation, Direction dir) {
+
+		float u0 = emitter.spriteU(0, 0);
+		float v0 = emitter.spriteV(0, 0);
+
+		float u1 = emitter.spriteU(1, 0);
+		float v1 = emitter.spriteV(1, 0);
+
+		float u2 = emitter.spriteU(2, 0);
+		float v2 = emitter.spriteV(2, 0);
+
+		float u3 = emitter.spriteU(3, 0);
+		float v3 = emitter.spriteV(3, 0);
+
+		switch (rotation) {
+		case 0:
+			if (dir.equals(Direction.UP)) {
+				emitter.sprite(0, 0, u3, v3);
+				emitter.sprite(1, 0, u2, v2);
+				emitter.sprite(2, 0, u1, v1);
+				emitter.sprite(3, 0, u0, v0);
+			} else {
+				emitter.sprite(0, 0, u0, v0);
+				emitter.sprite(1, 0, u1, v1);
+				emitter.sprite(2, 0, u2, v2);
+				emitter.sprite(3, 0, u3, v3);
+			}
+			break;
+		case 90:
+			if (dir.equals(Direction.UP)) {
+				emitter.sprite(0, 0, u0, v0);
+				emitter.sprite(1, 0, u3, v3);
+				emitter.sprite(2, 0, u2, v2);
+				emitter.sprite(3, 0, u1, v1);
+			} else {
+				emitter.sprite(0, 0, u1, v1);
+				emitter.sprite(1, 0, u2, v2);
+				emitter.sprite(2, 0, u3, v3);
+				emitter.sprite(3, 0, u0, v0);
+			}
+			break;
+		case 180:
+			if (dir.equals(Direction.UP)) {
+				emitter.sprite(0, 0, u1, v1);
+				emitter.sprite(1, 0, u0, v0);
+				emitter.sprite(2, 0, u3, v3);
+				emitter.sprite(3, 0, u2, v2);
+			} else {
+				emitter.sprite(0, 0, u2, v2);
+				emitter.sprite(1, 0, u3, v3);
+				emitter.sprite(2, 0, u0, v0);
+				emitter.sprite(3, 0, u1, v1);
+			}
+
+			break;
+		case 270:
+			if (dir.equals(Direction.UP)) {
+				emitter.sprite(0, 0, u2, v2);
+				emitter.sprite(1, 0, u1, v1);
+				emitter.sprite(2, 0, u0, v0);
+				emitter.sprite(3, 0, u3, v3);
+			} else {
+				emitter.sprite(0, 0, u3, v3);
+				emitter.sprite(1, 0, u0, v0);
+				emitter.sprite(2, 0, u1, v1);
+				emitter.sprite(3, 0, u2, v2);
+			}
+
+			break;
+		}
+
 	}
 
 	@Override

@@ -56,6 +56,9 @@ public class SecretRooms implements ModInitializer {
 	public static Item STAFF_OF_CAMO = new StaffOfCamo(
 			new Item.Settings().group(SECRET_BLOCKS_GROUP).rarity(Rarity.RARE).maxCount(1));
 
+	public static Item STAFF_OF_CAMO_ROTATION_MODE = new StaffOfCamo(
+			new Item.Settings().group(SECRET_BLOCKS_GROUP).rarity(Rarity.RARE).maxCount(1));
+
 	public static Item CAMOUFLAGE_PASTE = new Item(new Item.Settings().group(SECRET_BLOCKS_GROUP));
 
 	@Override
@@ -95,11 +98,13 @@ public class SecretRooms implements ModInitializer {
 		Registry.register(Registry.ITEM, id("iron_trapdoor_block"),
 				new BlockItem(IRON_TRAPDOOR_BLOCK, new FabricItemSettings().group(SECRET_BLOCKS_GROUP)));
 
+		Registry.register(Registry.ITEM, id("camouflage_paste"), CAMOUFLAGE_PASTE);
+
 		Registry.register(Registry.ITEM, id("camolock_eye"), CAMOLOCK_EYE);
 
 		Registry.register(Registry.ITEM, id("staff_of_camo"), STAFF_OF_CAMO);
 
-		Registry.register(Registry.ITEM, id("camouflage_paste"), CAMOUFLAGE_PASTE);
+		Registry.register(Registry.ITEM, id("staff_of_camo_rotation_mode"), STAFF_OF_CAMO_ROTATION_MODE);
 	}
 
 	public static Identifier id(String id) {
