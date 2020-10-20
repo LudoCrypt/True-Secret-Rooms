@@ -1,9 +1,12 @@
 package net.ludocrypt.truerooms.blocks.entity;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.function.Supplier;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
@@ -12,6 +15,7 @@ import net.ludocrypt.truerooms.blocks.DoorBlock;
 import net.ludocrypt.truerooms.blocks.HingeGateBlock;
 import net.ludocrypt.truerooms.blocks.TrapdoorBlock;
 import net.ludocrypt.truerooms.mixin.AccessibleBakedQuad;
+import net.ludocrypt.truerooms.mixin.DirectionAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -24,7 +28,6 @@ import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockRenderView;
@@ -69,12 +72,14 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	}
 
 	@Override
+	@Environment(EnvType.CLIENT)
 	public CompoundTag toClientTag(CompoundTag tag) {
 		return toTag(tag);
 	}
 
 	@Override
 	@SuppressWarnings("resource")
+	@Environment(EnvType.CLIENT)
 	public void fromClientTag(CompoundTag tag) {
 		fromTag(null, tag);
 		MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(), pos.getX(),
@@ -136,22 +141,22 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		// Separation
 
 		if (tag.contains("upDirection")) {
-			upDirection = Direction.byName(tag.getString("upDirection"));
+			upDirection = byName(tag.getString("upDirection"));
 		}
 		if (tag.contains("downDirection")) {
-			downDirection = Direction.byName(tag.getString("downDirection"));
+			downDirection = byName(tag.getString("downDirection"));
 		}
 		if (tag.contains("northDirection")) {
-			northDirection = Direction.byName(tag.getString("northDirection"));
+			northDirection = byName(tag.getString("northDirection"));
 		}
 		if (tag.contains("eastDirection")) {
-			eastDirection = Direction.byName(tag.getString("eastDirection"));
+			eastDirection = byName(tag.getString("eastDirection"));
 		}
 		if (tag.contains("southDirection")) {
-			southDirection = Direction.byName(tag.getString("southDirection"));
+			southDirection = byName(tag.getString("southDirection"));
 		}
 		if (tag.contains("westDirection")) {
-			westDirection = Direction.byName(tag.getString("westDirection"));
+			westDirection = byName(tag.getString("westDirection"));
 		}
 
 		// Separation
@@ -371,25 +376,25 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		Direction tempDir;
 		switch (dir) {
 		case UP:
-			tempDir = Direction.byName(tag.getString("upDirection"));
+			tempDir = byName(tag.getString("upDirection"));
 			break;
 		case DOWN:
-			tempDir = Direction.byName(tag.getString("downDirection"));
+			tempDir = byName(tag.getString("downDirection"));
 			break;
 		case NORTH:
-			tempDir = Direction.byName(tag.getString("northDirection"));
+			tempDir = byName(tag.getString("northDirection"));
 			break;
 		case EAST:
-			tempDir = Direction.byName(tag.getString("eastDirection"));
+			tempDir = byName(tag.getString("eastDirection"));
 			break;
 		case SOUTH:
-			tempDir = Direction.byName(tag.getString("southDirection"));
+			tempDir = byName(tag.getString("southDirection"));
 			break;
 		case WEST:
-			tempDir = Direction.byName(tag.getString("westDirection"));
+			tempDir = byName(tag.getString("westDirection"));
 			break;
 		default:
-			tempDir = Direction.byName(tag.getString("upDirection"));
+			tempDir = byName(tag.getString("upDirection"));
 			break;
 		}
 		return tempDir;
@@ -497,12 +502,13 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempInt;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public void renderBlock(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier,
 			RenderContext context) {
 
 		QuadEmitter emitter = context.getEmitter();
 
-		CompoundTag tag = serialize(new CompoundTag());
+		CompoundTag tag = toClientTag(new CompoundTag());
 
 		for (Direction direction : Direction.values()) {
 
@@ -515,7 +521,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			}
 
 			if (tag.contains(direction.name().toLowerCase() + "Direction")) {
-				tempDirection = Direction.byName(tag.getString(direction.name().toLowerCase() + "Direction"));
+				tempDirection = byName(tag.getString(direction.name().toLowerCase() + "Direction"));
 			}
 
 			if (tag.contains(direction.name().toLowerCase() + "Rotation")) {
@@ -786,9 +792,8 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 	}
 
-	@Override
-	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		return new BlockEntityUpdateS2CPacket(this.pos, -1, serialize(new CompoundTag()));
+	public static Direction byName(String name) {
+		return name == null ? null : (Direction) DirectionAccessor.NAME_MAP().get(name.toLowerCase(Locale.ROOT));
 	}
 
 }

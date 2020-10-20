@@ -4,6 +4,7 @@
 	"package": "net.ludocrypt.truerooms.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
+		"DirectionAccessor"
 	],
 	"client": [
 		"DrawSideMixin",

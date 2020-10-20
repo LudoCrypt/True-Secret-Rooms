@@ -10,11 +10,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
@@ -36,36 +33,46 @@ public class CamoBlock extends BlockWithEntity {
 		if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
 			CamoBlockEntity blockEntity = (CamoBlockEntity) world.getBlockEntity(pos);
 
-			MinecraftClient client = MinecraftClient.getInstance();
-			HitResult hit = client.crosshairTarget;
+			Direction dir = placer.getHorizontalFacing();
 
-			switch (hit.getType()) {
-			case MISS:
-				blockEntity.setState(Blocks.STONE.getDefaultState());
+			switch (dir) {
+			case UP:
+				pos = pos.up();
 				break;
-			case BLOCK:
-				BlockHitResult blockHit = (BlockHitResult) hit;
-				BlockPos blockPos = blockHit.getBlockPos();
-				BlockState blockState = client.world.getBlockState(blockPos);
-				Block block = blockState.getBlock();
+			case DOWN:
+				pos = pos.down();
+				break;
+			case NORTH:
+				pos = pos.north();
+				break;
+			case EAST:
+				pos = pos.east();
+				break;
+			case SOUTH:
+				pos = pos.south();
+				break;
+			case WEST:
+				pos = pos.west();
+				break;
+			}
 
-				if (block instanceof CamoBlock) {
-					if (world.getBlockEntity(blockPos) instanceof CamoBlockEntity) {
-						CamoBlockEntity blockEntityAdjacent = (CamoBlockEntity) world.getBlockEntity(blockPos);
-						blockEntity.setState(blockEntityAdjacent.getState(blockHit.getSide()));
-					} else {
-						blockEntity.setState(Blocks.STONE.getDefaultState());
-					}
-				} else if (block != Blocks.AIR && blockState.isFullCube(world, blockPos)) {
-					blockEntity.setState(blockState);
+			Direction hitDir = dir.getOpposite();
+			BlockState blockState = world.getBlockState(pos);
+			Block block = blockState.getBlock();
+
+			if (block instanceof CamoBlock) {
+				if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
+					CamoBlockEntity blockEntityAdjacent = (CamoBlockEntity) world.getBlockEntity(pos);
+					blockEntity.setState(blockEntityAdjacent.getState(hitDir));
 				} else {
 					blockEntity.setState(Blocks.STONE.getDefaultState());
 				}
-				break;
-			case ENTITY:
+			} else if (block != Blocks.AIR && blockState.isFullCube(world, pos)) {
+				blockEntity.setState(blockState);
+			} else {
 				blockEntity.setState(Blocks.STONE.getDefaultState());
-				break;
 			}
+
 		}
 	}
 
