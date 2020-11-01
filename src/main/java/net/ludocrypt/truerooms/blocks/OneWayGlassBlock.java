@@ -1,20 +1,17 @@
 package net.ludocrypt.truerooms.blocks;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class OneWayGlassBlock extends CamoBlock {
+public class OneWayGlassBlock extends SolidBlock {
 
 	public OneWayGlassBlock() {
-		super(FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
+		super();
 	}
 
 	@Override

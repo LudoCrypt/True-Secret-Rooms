@@ -1,8 +1,11 @@
 package net.ludocrypt.truerooms.blocks;
 
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.ludocrypt.truerooms.SecretRooms;
 import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -10,8 +13,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
@@ -31,49 +37,42 @@ public class CamoBlock extends BlockWithEntity {
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
 		if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
+
 			CamoBlockEntity blockEntity = (CamoBlockEntity) world.getBlockEntity(pos);
 
-			Direction dir = placer.getHorizontalFacing();
+			if (world.isClient) {
 
-			switch (dir) {
-			case UP:
-				pos = pos.up();
-				break;
-			case DOWN:
-				pos = pos.down();
-				break;
-			case NORTH:
-				pos = pos.north();
-				break;
-			case EAST:
-				pos = pos.east();
-				break;
-			case SOUTH:
-				pos = pos.south();
-				break;
-			case WEST:
-				pos = pos.west();
-				break;
-			}
+				MinecraftClient.getInstance();
 
-			Direction hitDir = dir.getOpposite();
-			BlockState blockState = world.getBlockState(pos);
-			Block block = blockState.getBlock();
+				BlockHitResult hit = (BlockHitResult) MinecraftClient.getInstance().crosshairTarget;
 
-			if (block instanceof CamoBlock) {
-				if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
-					CamoBlockEntity blockEntityAdjacent = (CamoBlockEntity) world.getBlockEntity(pos);
-					blockEntity.setState(blockEntityAdjacent.getState(hitDir));
+				// Client side, send packet
+				PacketByteBuf data = new PacketByteBuf(Unpooled.buffer());
+				data.writeBlockHitResult(hit);
+				data.writeBlockPos(pos);
+
+				ClientSidePacketRegistry.INSTANCE.sendToServer(SecretRooms.id("blockhitresult"), data);
+
+				BlockPos blockPos = hit.getBlockPos();
+				BlockState blockState = world.getBlockState(blockPos);
+				Block block = blockState.getBlock();
+
+				if (block instanceof CamoBlock) {
+					if (world.getBlockEntity(blockPos) instanceof CamoBlockEntity) {
+						CamoBlockEntity blockEntityAdjacent = (CamoBlockEntity) world.getBlockEntity(blockPos);
+						blockEntity.setState(blockEntityAdjacent.getState(hit.getSide()));
+					} else {
+						blockEntity.setState(Blocks.STONE.getDefaultState());
+					}
+				} else if (block != Blocks.AIR && blockState.isFullCube(world, blockPos)) {
+					blockEntity.setState(blockState);
 				} else {
 					blockEntity.setState(Blocks.STONE.getDefaultState());
 				}
-			} else if (block != Blocks.AIR && blockState.isFullCube(world, pos)) {
-				blockEntity.setState(blockState);
-			} else {
-				blockEntity.setState(Blocks.STONE.getDefaultState());
 			}
-
+			super.onPlaced(world, pos, state, placer, itemStack);
 		}
+
 	}
 
 	@Override

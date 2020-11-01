@@ -94,7 +94,7 @@ public class StaffOfCamo extends Item {
 		Direction tempDir = Direction.NORTH;
 
 		if (tag.contains("setDirection", 8)) {
-			tempDir = Direction.byName(tag.getString("setDirection"));
+			tempDir = CamoBlockEntity.byName(tag.getString("setDirection"));
 		}
 
 		return tempDir;

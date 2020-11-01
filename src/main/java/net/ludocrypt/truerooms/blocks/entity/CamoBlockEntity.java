@@ -28,6 +28,7 @@ import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockRenderView;
@@ -72,18 +73,14 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
 	public CompoundTag toClientTag(CompoundTag tag) {
 		return toTag(tag);
 	}
 
 	@Override
-	@SuppressWarnings("resource")
-	@Environment(EnvType.CLIENT)
 	public void fromClientTag(CompoundTag tag) {
 		fromTag(null, tag);
-		MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(), pos.getX(),
-				pos.getY(), pos.getZ());
+		update();
 	}
 
 	public CompoundTag serialize(CompoundTag tag) {
@@ -182,7 +179,6 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 	}
 
-	@SuppressWarnings("resource")
 	public void setState(Direction dir, BlockState newState) {
 		switch (dir) {
 		case UP:
@@ -204,15 +200,9 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			this.westState = newState;
 			break;
 		}
-		if (!world.isClient) {
-			sync();
-		} else {
-			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
-					pos.getX(), pos.getY(), pos.getZ());
-		}
+		update();
 	}
 
-	@SuppressWarnings("resource")
 	public void setState(BlockState newState) {
 		this.upState = newState;
 		this.downState = newState;
@@ -220,15 +210,9 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		this.eastState = newState;
 		this.southState = newState;
 		this.westState = newState;
-		if (!world.isClient) {
-			sync();
-		} else {
-			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
-					pos.getX(), pos.getY(), pos.getZ());
-		}
+		update();
 	}
 
-	@SuppressWarnings("resource")
 	public void setDirection(Direction dir, Direction newDir) {
 		switch (dir) {
 		case UP:
@@ -250,15 +234,9 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			this.westDirection = newDir;
 			break;
 		}
-		if (!world.isClient) {
-			sync();
-		} else {
-			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
-					pos.getX(), pos.getY(), pos.getZ());
-		}
+		update();
 	}
 
-	@SuppressWarnings("resource")
 	public void setDirection(Direction newDir) {
 		this.upDirection = newDir;
 		this.downDirection = newDir;
@@ -266,12 +244,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		this.eastDirection = newDir;
 		this.southDirection = newDir;
 		this.westDirection = newDir;
-		if (!world.isClient) {
-			sync();
-		} else {
-			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
-					pos.getX(), pos.getY(), pos.getZ());
-		}
+		update();
 	}
 
 	public BlockState getState(Direction dir) {
@@ -400,7 +373,6 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempDir;
 	}
 
-	@SuppressWarnings("resource")
 	public void setRotation(Direction dir, int rotation) {
 		switch (dir) {
 		case UP:
@@ -422,15 +394,9 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			this.westRotation = rotation;
 			break;
 		}
-		if (!world.isClient) {
-			sync();
-		} else {
-			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
-					pos.getX(), pos.getY(), pos.getZ());
-		}
+		update();
 	}
 
-	@SuppressWarnings("resource")
 	public void setRotation(int rotation) {
 		this.upRotation = rotation;
 		this.downRotation = rotation;
@@ -438,12 +404,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		this.eastRotation = rotation;
 		this.southRotation = rotation;
 		this.westRotation = rotation;
-		if (!world.isClient) {
-			sync();
-		} else {
-			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
-					pos.getX(), pos.getY(), pos.getZ());
-		}
+		update();
 	}
 
 	public int getRotation(Direction dir) {
@@ -585,9 +546,9 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 		case EAST:
 
-			if (faceDirection == Direction.NORTH) {
+			if (faceDirection == Direction.SOUTH) {
 				emitter.square(faceDirection, 0.8125f, 0.0f, 1.0f, 1.0f, 0.0f);
-			} else if (faceDirection == Direction.SOUTH) {
+			} else if (faceDirection == Direction.NORTH) {
 				emitter.square(faceDirection, 0.0f, 0.0f, 0.1875f, 1.0f, 0.0f);
 			} else if (faceDirection == Direction.EAST) {
 				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0f);
@@ -619,9 +580,9 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 		case WEST:
 
-			if (faceDirection == Direction.SOUTH) {
+			if (faceDirection == Direction.NORTH) {
 				emitter.square(faceDirection, 0.8125f, 0.0f, 1.0f, 1.0f, 0.0f);
-			} else if (faceDirection == Direction.NORTH) {
+			} else if (faceDirection == Direction.SOUTH) {
 				emitter.square(faceDirection, 0.0f, 0.0f, 0.1875f, 1.0f, 0.0f);
 			} else if (faceDirection == Direction.WEST) {
 				emitter.square(faceDirection, 0.0f, 0.0f, 1.0f, 1.0f, 0f);
@@ -794,6 +755,21 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 	public static Direction byName(String name) {
 		return name == null ? null : (Direction) DirectionAccessor.NAME_MAP().get(name.toLowerCase(Locale.ROOT));
+	}
+
+	public void update() {
+		if (!world.isClient) {
+			sync();
+		} else {
+			MinecraftClient.getInstance();
+			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
+					pos.getX(), pos.getY(), pos.getZ());
+		}
+	}
+
+	@Override
+	public BlockEntityUpdateS2CPacket toUpdatePacket() {
+		return new BlockEntityUpdateS2CPacket(this.pos, -1, serialize(new CompoundTag()));
 	}
 
 }

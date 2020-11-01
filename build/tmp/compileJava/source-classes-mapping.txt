@@ -1,6 +1,5 @@
 net/ludocrypt/truerooms/blocks/CamoBlock.java
  net.ludocrypt.truerooms.blocks.CamoBlock
- net.ludocrypt.truerooms.blocks.CamoBlock$1
 net/ludocrypt/truerooms/blocks/entity/CamoBlockEntity.java
  net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity
  net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity$1
@@ -18,6 +17,8 @@ net/ludocrypt/truerooms/blocks/StairBlock.java
  net.ludocrypt.truerooms.blocks.StairBlock$1
 net/ludocrypt/truerooms/blocks/OneWayGlassBlock.java
  net.ludocrypt.truerooms.blocks.OneWayGlassBlock
+net/ludocrypt/truerooms/mixin/DirectionAccessor.java
+ net.ludocrypt.truerooms.mixin.DirectionAccessor
 net/ludocrypt/truerooms/render/CamoBlockBakedModel.java
  net.ludocrypt.truerooms.render.CamoBlockBakedModel
 net/ludocrypt/truerooms/blocks/DoorBlock.java
