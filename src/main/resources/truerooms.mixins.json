@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "net.ludocrypt.truerooms.mixin",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [
+		"DirectionAccessor"
+	],
+	"client": [
+		"DrawSideMixin",
+		"AccessibleBakedQuad"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
