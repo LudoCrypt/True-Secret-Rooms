@@ -40,26 +40,26 @@ public class StaffOfCamo extends Item {
 
 				CamoBlockEntity camoBlockEntity = (CamoBlockEntity) world.getBlockEntity(blockPos);
 
-				if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO) {
-					if (itemStack.hasTag()) {
-						camoBlockEntity.setState(dir, getState(itemStack));
-						camoBlockEntity.setDirection(dir, getDirection(itemStack));
-					} else {
-						BlockState stateAdjacent = camoBlockEntity.getState(dir);
-						putStateAndDirection(itemStack, stateAdjacent, dir);
+				if (!camoBlockEntity.waxed) {
+					if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO) {
+						if (itemStack.hasTag()) {
+							camoBlockEntity.setState(dir, getState(itemStack));
+							camoBlockEntity.setDirection(dir, getDirection(itemStack));
+						} else {
+							BlockState stateAdjacent = camoBlockEntity.getState(dir);
+							putStateAndDirection(itemStack, stateAdjacent, dir);
+						}
+					} else if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
+						camoBlockEntity.setRotation(dir, camoBlockEntity.getRotation(dir) == 270 ? 0 : camoBlockEntity.getRotation(dir) + 90);
 					}
-				} else if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
-					camoBlockEntity.setRotation(dir,
-							camoBlockEntity.getRotation(dir) == 270 ? 0 : camoBlockEntity.getRotation(dir) + 90);
+					return ActionResult.SUCCESS;
+				} else {
+					return ActionResult.FAIL;
 				}
-
-				return ActionResult.SUCCESS;
-
 			} else {
 				return ActionResult.FAIL;
 			}
-		} else if (block != Blocks.AIR && blockState.isFullCube(world, blockPos)
-				&& itemStack.getItem() != SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
+		} else if (block != Blocks.AIR && itemStack.getItem() != SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
 			putStateAndDirection(itemStack, blockState, dir);
 			return ActionResult.SUCCESS;
 		} else {
@@ -70,10 +70,7 @@ public class StaffOfCamo extends Item {
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		if (user.isSneaking()) {
-			user.setStackInHand(hand,
-					new ItemStack(user.getStackInHand(hand).getItem() == SecretRooms.STAFF_OF_CAMO
-							? SecretRooms.STAFF_OF_CAMO_ROTATION_MODE
-							: SecretRooms.STAFF_OF_CAMO));
+			user.setStackInHand(hand, new ItemStack(user.getStackInHand(hand).getItem() == SecretRooms.STAFF_OF_CAMO ? SecretRooms.STAFF_OF_CAMO_ROTATION_MODE : SecretRooms.STAFF_OF_CAMO));
 		}
 		return super.use(world, user, hand);
 	}

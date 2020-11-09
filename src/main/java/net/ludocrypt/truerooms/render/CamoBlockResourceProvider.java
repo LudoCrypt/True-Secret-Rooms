@@ -13,8 +13,7 @@ public class CamoBlockResourceProvider implements ModelResourceProvider {
 	public static final Identifier CAMO_BLOCK = SecretRooms.id("block/camo_block");
 
 	@Override
-	public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext)
-			throws ModelProviderException {
+	public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext) throws ModelProviderException {
 		if (identifier.equals(CAMO_BLOCK)) {
 			return CAMO_MODEL;
 		} else {

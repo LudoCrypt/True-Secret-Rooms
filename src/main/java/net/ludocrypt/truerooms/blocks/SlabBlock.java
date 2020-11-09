@@ -35,8 +35,7 @@ public class SlabBlock extends CamoBlock implements Waterloggable {
 
 	public SlabBlock() {
 		super(FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
-		this.setDefaultState((BlockState) ((BlockState) this.getDefaultState().with(TYPE, SlabType.BOTTOM))
-				.with(WATERLOGGED, false));
+		this.setDefaultState((BlockState) ((BlockState) this.getDefaultState().with(TYPE, SlabType.BOTTOM)).with(WATERLOGGED, false));
 	}
 
 	public boolean hasSidedTransparency(BlockState state) {
@@ -67,12 +66,9 @@ public class SlabBlock extends CamoBlock implements Waterloggable {
 			return (BlockState) ((BlockState) blockState.with(TYPE, SlabType.DOUBLE)).with(WATERLOGGED, false);
 		} else {
 			FluidState fluidState = ctx.getWorld().getFluidState(blockPos);
-			BlockState blockState2 = (BlockState) ((BlockState) this.getDefaultState().with(TYPE, SlabType.BOTTOM))
-					.with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+			BlockState blockState2 = (BlockState) ((BlockState) this.getDefaultState().with(TYPE, SlabType.BOTTOM)).with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
 			Direction direction = ctx.getSide();
-			return direction != Direction.DOWN
-					&& (direction == Direction.UP || ctx.getHitPos().y - (double) blockPos.getY() <= 0.5D) ? blockState2
-							: (BlockState) blockState2.with(TYPE, SlabType.TOP);
+			return direction != Direction.DOWN && (direction == Direction.UP || ctx.getHitPos().y - (double) blockPos.getY() <= 0.5D) ? blockState2 : (BlockState) blockState2.with(TYPE, SlabType.TOP);
 		}
 	}
 
@@ -101,17 +97,14 @@ public class SlabBlock extends CamoBlock implements Waterloggable {
 	}
 
 	public boolean tryFillWithFluid(WorldAccess world, BlockPos pos, BlockState state, FluidState fluidState) {
-		return state.get(TYPE) != SlabType.DOUBLE ? Waterloggable.super.tryFillWithFluid(world, pos, state, fluidState)
-				: false;
+		return state.get(TYPE) != SlabType.DOUBLE ? Waterloggable.super.tryFillWithFluid(world, pos, state, fluidState) : false;
 	}
 
 	public boolean canFillWithFluid(BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
-		return state.get(TYPE) != SlabType.DOUBLE ? Waterloggable.super.canFillWithFluid(world, pos, state, fluid)
-				: false;
+		return state.get(TYPE) != SlabType.DOUBLE ? Waterloggable.super.canFillWithFluid(world, pos, state, fluid) : false;
 	}
 
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState,
-			WorldAccess world, BlockPos pos, BlockPos posFrom) {
+	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
 		if ((Boolean) state.get(WATERLOGGED)) {
 			world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
 		}

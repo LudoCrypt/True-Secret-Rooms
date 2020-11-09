@@ -65,8 +65,7 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 	private final Block baseBlock;
 	private final BlockState baseBlockState;
 
-	private static VoxelShape[] composeShapes(VoxelShape base, VoxelShape northWest, VoxelShape northEast,
-			VoxelShape southWest, VoxelShape southEast) {
+	private static VoxelShape[] composeShapes(VoxelShape base, VoxelShape northWest, VoxelShape northEast, VoxelShape southWest, VoxelShape southEast) {
 		return (VoxelShape[]) IntStream.range(0, 16).mapToObj((i) -> {
 			return composeShape(i, base, northWest, northEast, southWest, southEast);
 		}).toArray((i) -> {
@@ -74,8 +73,7 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 		});
 	}
 
-	private static VoxelShape composeShape(int i, VoxelShape base, VoxelShape northWest, VoxelShape northEast,
-			VoxelShape southWest, VoxelShape southEast) {
+	private static VoxelShape composeShape(int i, VoxelShape base, VoxelShape northWest, VoxelShape northEast, VoxelShape southWest, VoxelShape southEast) {
 		VoxelShape voxelShape = base;
 		if ((i & 1) != 0) {
 			voxelShape = VoxelShapes.union(base, northWest);
@@ -98,9 +96,7 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 
 	public StairBlock(BlockState baseBlockState) {
 		super(FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
-		this.setDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateManager
-				.getDefaultState()).with(FACING, Direction.NORTH)).with(HALF, BlockHalf.BOTTOM)).with(SHAPE,
-						StairShape.STRAIGHT)).with(WATERLOGGED, false));
+		this.setDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateManager.getDefaultState()).with(FACING, Direction.NORTH)).with(HALF, BlockHalf.BOTTOM)).with(SHAPE, StairShape.STRAIGHT)).with(WATERLOGGED, false));
 		this.baseBlock = baseBlockState.getBlock();
 		this.baseBlockState = baseBlockState;
 	}
@@ -111,8 +107,7 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return (state.get(HALF) == BlockHalf.TOP ? TOP_SHAPES : BOTTOM_SHAPES)[SHAPE_INDICES[this
-				.getShapeIndexIndex(state)]];
+		return (state.get(HALF) == BlockHalf.TOP ? TOP_SHAPES : BOTTOM_SHAPES)[SHAPE_INDICES[this.getShapeIndexIndex(state)]];
 	}
 
 	private int getShapeIndexIndex(BlockState state) {
@@ -166,8 +161,7 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 		this.baseBlock.scheduledTick(state, world, pos, random);
 	}
 
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-			BlockHitResult hit) {
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return this.baseBlockState.onUse(world, player, hand, hit);
 	}
 
@@ -179,24 +173,16 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 		Direction direction = ctx.getSide();
 		BlockPos blockPos = ctx.getBlockPos();
 		FluidState fluidState = ctx.getWorld().getFluidState(blockPos);
-		BlockState blockState = (BlockState) ((BlockState) ((BlockState) this.getDefaultState().with(FACING,
-				ctx.getPlayerFacing())).with(
-						HALF,
-						direction != Direction.DOWN
-								&& (direction == Direction.UP || ctx.getHitPos().y - (double) blockPos.getY() <= 0.5D)
-										? BlockHalf.BOTTOM
-										: BlockHalf.TOP)).with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+		BlockState blockState = (BlockState) ((BlockState) ((BlockState) this.getDefaultState().with(FACING, ctx.getPlayerFacing())).with(HALF, direction != Direction.DOWN && (direction == Direction.UP || ctx.getHitPos().y - (double) blockPos.getY() <= 0.5D) ? BlockHalf.BOTTOM : BlockHalf.TOP)).with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
 		return (BlockState) blockState.with(SHAPE, getStairShape(blockState, ctx.getWorld(), blockPos));
 	}
 
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState,
-			WorldAccess world, BlockPos pos, BlockPos posFrom) {
+	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
 		if ((Boolean) state.get(WATERLOGGED)) {
 			world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
 		}
 
-		return direction.getAxis().isHorizontal() ? (BlockState) state.with(SHAPE, getStairShape(state, world, pos))
-				: super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
+		return direction.getAxis().isHorizontal() ? (BlockState) state.with(SHAPE, getStairShape(state, world, pos)) : super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
 	}
 
 	private static StairShape getStairShape(BlockState state, BlockView world, BlockPos pos) {
@@ -204,8 +190,7 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 		BlockState blockState = world.getBlockState(pos.offset(direction));
 		if (isStairs(blockState) && state.get(HALF) == blockState.get(HALF)) {
 			Direction direction2 = (Direction) blockState.get(FACING);
-			if (direction2.getAxis() != ((Direction) state.get(FACING)).getAxis()
-					&& method_10678(state, world, pos, direction2.getOpposite())) {
+			if (direction2.getAxis() != ((Direction) state.get(FACING)).getAxis() && method_10678(state, world, pos, direction2.getOpposite())) {
 				if (direction2 == direction.rotateYCounterclockwise()) {
 					return StairShape.OUTER_LEFT;
 				}
@@ -217,8 +202,7 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 		BlockState blockState2 = world.getBlockState(pos.offset(direction.getOpposite()));
 		if (isStairs(blockState2) && state.get(HALF) == blockState2.get(HALF)) {
 			Direction direction3 = (Direction) blockState2.get(FACING);
-			if (direction3.getAxis() != ((Direction) state.get(FACING)).getAxis()
-					&& method_10678(state, world, pos, direction3)) {
+			if (direction3.getAxis() != ((Direction) state.get(FACING)).getAxis() && method_10678(state, world, pos, direction3)) {
 				if (direction3 == direction.rotateYCounterclockwise()) {
 					return StairShape.INNER_LEFT;
 				}
@@ -232,8 +216,7 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 
 	private static boolean method_10678(BlockState state, BlockView world, BlockPos pos, Direction dir) {
 		BlockState blockState = world.getBlockState(pos.offset(dir));
-		return !isStairs(blockState) || blockState.get(FACING) != state.get(FACING)
-				|| blockState.get(HALF) != state.get(HALF);
+		return !isStairs(blockState) || blockState.get(FACING) != state.get(FACING) || blockState.get(HALF) != state.get(HALF);
 	}
 
 	public static boolean isStairs(BlockState state) {
@@ -312,10 +295,8 @@ public class StairBlock extends CamoBlock implements Waterloggable {
 		BOTTOM_SOUTH_EAST_CORNER_SHAPE = Block.createCuboidShape(8.0D, 0.0D, 8.0D, 16.0D, 8.0D, 16.0D);
 		TOP_NORTH_EAST_CORNER_SHAPE = Block.createCuboidShape(8.0D, 8.0D, 0.0D, 16.0D, 16.0D, 8.0D);
 		TOP_SOUTH_EAST_CORNER_SHAPE = Block.createCuboidShape(8.0D, 8.0D, 8.0D, 16.0D, 16.0D, 16.0D);
-		TOP_SHAPES = composeShapes(TOP_SHAPE, BOTTOM_NORTH_WEST_CORNER_SHAPE, BOTTOM_NORTH_EAST_CORNER_SHAPE,
-				BOTTOM_SOUTH_WEST_CORNER_SHAPE, BOTTOM_SOUTH_EAST_CORNER_SHAPE);
-		BOTTOM_SHAPES = composeShapes(BOTTOM_SHAPE, TOP_NORTH_WEST_CORNER_SHAPE, TOP_NORTH_EAST_CORNER_SHAPE,
-				TOP_SOUTH_WEST_CORNER_SHAPE, TOP_SOUTH_EAST_CORNER_SHAPE);
+		TOP_SHAPES = composeShapes(TOP_SHAPE, BOTTOM_NORTH_WEST_CORNER_SHAPE, BOTTOM_NORTH_EAST_CORNER_SHAPE, BOTTOM_SOUTH_WEST_CORNER_SHAPE, BOTTOM_SOUTH_EAST_CORNER_SHAPE);
+		BOTTOM_SHAPES = composeShapes(BOTTOM_SHAPE, TOP_NORTH_WEST_CORNER_SHAPE, TOP_NORTH_EAST_CORNER_SHAPE, TOP_SOUTH_WEST_CORNER_SHAPE, TOP_SOUTH_EAST_CORNER_SHAPE);
 		SHAPE_INDICES = new int[] { 12, 5, 3, 10, 14, 13, 7, 11, 13, 7, 11, 14, 8, 4, 1, 2, 4, 1, 2, 8 };
 	}
 }

@@ -22,8 +22,7 @@ import net.minecraft.world.BlockView;
 public class DrawSideMixin {
 
 	@Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
-	private static void TSRshouldDrawSide(BlockState state, BlockView world, BlockPos pos, Direction facing,
-			CallbackInfoReturnable<Boolean> ci) {
+	private static void TSRshouldDrawSide(BlockState state, BlockView world, BlockPos pos, Direction facing, CallbackInfoReturnable<Boolean> ci) {
 		BlockPos blockPos = pos.offset(facing);
 		BlockState blockState = world.getBlockState(blockPos);
 
@@ -31,12 +30,11 @@ public class DrawSideMixin {
 			ci.setReturnValue(true);
 		}
 
-		if (state.getBlock() == blockState.getBlock()) {
+		if (state.getBlock() == blockState.getBlock() && state.getBlock() instanceof CamoBlock) {
 			ci.setReturnValue(false);
 		}
 
-		if (blockState.getBlock() instanceof DoorBlock || blockState.getBlock() instanceof HingeGateBlock
-				|| blockState.getBlock() instanceof TrapdoorBlock) {
+		if (state.getBlock() instanceof CamoBlock && (blockState.getBlock() instanceof DoorBlock || blockState.getBlock() instanceof HingeGateBlock || blockState.getBlock() instanceof TrapdoorBlock)) {
 			ci.setReturnValue(true);
 		}
 	}

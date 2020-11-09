@@ -43,10 +43,7 @@ public class TrapdoorBlock extends CamoBlock implements Waterloggable {
 
 	public TrapdoorBlock(FabricBlockSettings settings) {
 		super(settings);
-		this.setDefaultState(
-				(BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateManager
-						.getDefaultState()).with(FACING, Direction.NORTH)).with(OPEN, false)).with(HALF,
-								BlockHalf.BOTTOM)).with(POWERED, false)).with(WATERLOGGED, false));
+		this.setDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateManager.getDefaultState()).with(FACING, Direction.NORTH)).with(OPEN, false)).with(HALF, BlockHalf.BOTTOM)).with(POWERED, false)).with(WATERLOGGED, false));
 	}
 
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
@@ -80,8 +77,8 @@ public class TrapdoorBlock extends CamoBlock implements Waterloggable {
 		}
 	}
 
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-			BlockHitResult hit) {
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		super.onUse(state, world, pos, player, hand, hit);
 		if (this.material == Material.METAL) {
 			return ActionResult.PASS;
 		} else {
@@ -108,8 +105,7 @@ public class TrapdoorBlock extends CamoBlock implements Waterloggable {
 
 	}
 
-	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos,
-			boolean notify) {
+	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
 		if (!world.isClient) {
 			boolean bl = world.isReceivingRedstonePower(pos);
 			if (bl != (Boolean) state.get(POWERED)) {
@@ -132,11 +128,9 @@ public class TrapdoorBlock extends CamoBlock implements Waterloggable {
 		FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
 		Direction direction = ctx.getSide();
 		if (!ctx.canReplaceExisting() && direction.getAxis().isHorizontal()) {
-			blockState = (BlockState) ((BlockState) blockState.with(FACING, direction)).with(HALF,
-					ctx.getHitPos().y - (double) ctx.getBlockPos().getY() > 0.5D ? BlockHalf.TOP : BlockHalf.BOTTOM);
+			blockState = (BlockState) ((BlockState) blockState.with(FACING, direction)).with(HALF, ctx.getHitPos().y - (double) ctx.getBlockPos().getY() > 0.5D ? BlockHalf.TOP : BlockHalf.BOTTOM);
 		} else {
-			blockState = (BlockState) ((BlockState) blockState.with(FACING, ctx.getPlayerFacing().getOpposite()))
-					.with(HALF, direction == Direction.UP ? BlockHalf.BOTTOM : BlockHalf.TOP);
+			blockState = (BlockState) ((BlockState) blockState.with(FACING, ctx.getPlayerFacing().getOpposite())).with(HALF, direction == Direction.UP ? BlockHalf.BOTTOM : BlockHalf.TOP);
 		}
 
 		if (ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos())) {
@@ -154,8 +148,7 @@ public class TrapdoorBlock extends CamoBlock implements Waterloggable {
 		return (Boolean) state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
 	}
 
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState,
-			WorldAccess world, BlockPos pos, BlockPos posFrom) {
+	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
 		if ((Boolean) state.get(WATERLOGGED)) {
 			world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
 		}

@@ -49,12 +49,14 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	public Direction southDirection = Direction.SOUTH;
 	public Direction westDirection = Direction.WEST;
 
-	public int upRotation = 180;
+	public int upRotation = 0;
 	public int downRotation = 0;
 	public int northRotation = 0;
 	public int eastRotation = 0;
 	public int southRotation = 0;
 	public int westRotation = 0;
+
+	public boolean waxed = false;
 
 	public CamoBlockEntity() {
 		super(SecretRooms.CAMO_BLOCK_ENTITY);
@@ -109,6 +111,8 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		tag.putInt("eastRotation", eastRotation);
 		tag.putInt("southRotation", southRotation);
 		tag.putInt("westRotation", westRotation);
+
+		tag.putBoolean("waxed", waxed);
 
 		return tag;
 
@@ -177,73 +181,85 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			westRotation = tag.getInt("southRotation");
 		}
 
+		if (tag.contains("waxed")) {
+			waxed = tag.getBoolean("waxed");
+		}
+
 	}
 
 	public void setState(Direction dir, BlockState newState) {
-		switch (dir) {
-		case UP:
-			this.upState = newState;
-			break;
-		case DOWN:
-			this.downState = newState;
-			break;
-		case NORTH:
-			this.northState = newState;
-			break;
-		case EAST:
-			this.eastState = newState;
-			break;
-		case SOUTH:
-			this.southState = newState;
-			break;
-		case WEST:
-			this.westState = newState;
-			break;
+		if (!waxed) {
+			switch (dir) {
+			case UP:
+				this.upState = newState;
+				break;
+			case DOWN:
+				this.downState = newState;
+				break;
+			case NORTH:
+				this.northState = newState;
+				break;
+			case EAST:
+				this.eastState = newState;
+				break;
+			case SOUTH:
+				this.southState = newState;
+				break;
+			case WEST:
+				this.westState = newState;
+				break;
+			}
 		}
 		update();
 	}
 
 	public void setState(BlockState newState) {
-		this.upState = newState;
-		this.downState = newState;
-		this.northState = newState;
-		this.eastState = newState;
-		this.southState = newState;
-		this.westState = newState;
+		if (!waxed) {
+			this.upState = newState;
+			this.downState = newState;
+			this.northState = newState;
+			this.eastState = newState;
+			this.southState = newState;
+			this.westState = newState;
+		}
 		update();
 	}
 
 	public void setDirection(Direction dir, Direction newDir) {
-		switch (dir) {
-		case UP:
-			this.upDirection = newDir;
-			break;
-		case DOWN:
-			this.downDirection = newDir;
-			break;
-		case NORTH:
-			this.northDirection = newDir;
-			break;
-		case EAST:
-			this.eastDirection = newDir;
-			break;
-		case SOUTH:
-			this.southDirection = newDir;
-			break;
-		case WEST:
-			this.westDirection = newDir;
-			break;
+		if (!waxed) {
+			switch (dir) {
+			case UP:
+				this.upDirection = newDir;
+				break;
+			case DOWN:
+				this.downDirection = newDir;
+				break;
+			case NORTH:
+				this.northDirection = newDir;
+				break;
+			case EAST:
+				this.eastDirection = newDir;
+				break;
+			case SOUTH:
+				this.southDirection = newDir;
+				break;
+			case WEST:
+				this.westDirection = newDir;
+				break;
+			}
 		}
 		update();
 	}
 
 	public void setDirection(Direction newDir) {
-		this.upDirection = newDir;
-		this.downDirection = newDir;
-		this.northDirection = newDir;
-		this.eastDirection = newDir;
-		this.southDirection = newDir;
-		this.westDirection = newDir;
+		if (!waxed) {
+			this.upDirection = newDir;
+			this.downDirection = newDir;
+			this.northDirection = newDir;
+			this.eastDirection = newDir;
+			this.southDirection = newDir;
+			this.westDirection = newDir;
+		}
 		update();
 	}
 
@@ -374,36 +390,40 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	}
 
 	public void setRotation(Direction dir, int rotation) {
-		switch (dir) {
-		case UP:
-			this.upRotation = rotation;
-			break;
-		case DOWN:
-			this.downRotation = rotation;
-			break;
-		case NORTH:
-			this.northRotation = rotation;
-			break;
-		case EAST:
-			this.eastRotation = rotation;
-			break;
-		case SOUTH:
-			this.southRotation = rotation;
-			break;
-		case WEST:
-			this.westRotation = rotation;
-			break;
+		if (!waxed) {
+			switch (dir) {
+			case UP:
+				this.upRotation = rotation;
+				break;
+			case DOWN:
+				this.downRotation = rotation;
+				break;
+			case NORTH:
+				this.northRotation = rotation;
+				break;
+			case EAST:
+				this.eastRotation = rotation;
+				break;
+			case SOUTH:
+				this.southRotation = rotation;
+				break;
+			case WEST:
+				this.westRotation = rotation;
+				break;
+			}
 		}
 		update();
 	}
 
 	public void setRotation(int rotation) {
-		this.upRotation = rotation;
-		this.downRotation = rotation;
-		this.northRotation = rotation;
-		this.eastRotation = rotation;
-		this.southRotation = rotation;
-		this.westRotation = rotation;
+		if (!waxed) {
+			this.upRotation = rotation;
+			this.downRotation = rotation;
+			this.northRotation = rotation;
+			this.eastRotation = rotation;
+			this.southRotation = rotation;
+			this.westRotation = rotation;
+		}
 		update();
 	}
 
@@ -464,8 +484,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	}
 
 	@Environment(EnvType.CLIENT)
-	public void renderBlock(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier,
-			RenderContext context) {
+	public void renderBlock(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 
 		QuadEmitter emitter = context.getEmitter();
 
@@ -636,29 +655,13 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 		Direction renderDirection = Direction.EAST;
 
-		if ((state.get(DoorBlock.FACING) == Direction.NORTH && !state.get(DoorBlock.OPEN))
-				|| (state.get(DoorBlock.FACING) == Direction.EAST && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT
-						&& state.get(DoorBlock.OPEN))
-				|| (state.get(DoorBlock.FACING) == Direction.WEST && state.get(DoorBlock.HINGE) == DoorHinge.LEFT
-						&& state.get(DoorBlock.OPEN))) {
+		if ((state.get(DoorBlock.FACING) == Direction.NORTH && !state.get(DoorBlock.OPEN)) || (state.get(DoorBlock.FACING) == Direction.EAST && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT && state.get(DoorBlock.OPEN)) || (state.get(DoorBlock.FACING) == Direction.WEST && state.get(DoorBlock.HINGE) == DoorHinge.LEFT && state.get(DoorBlock.OPEN))) {
 			renderDirection = Direction.SOUTH;
-		} else if ((state.get(DoorBlock.FACING) == Direction.EAST && !state.get(DoorBlock.OPEN))
-				|| (state.get(DoorBlock.FACING) == Direction.SOUTH && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT
-						&& state.get(DoorBlock.OPEN))
-				|| (state.get(DoorBlock.FACING) == Direction.NORTH && state.get(DoorBlock.HINGE) == DoorHinge.LEFT
-						&& state.get(DoorBlock.OPEN))) {
+		} else if ((state.get(DoorBlock.FACING) == Direction.EAST && !state.get(DoorBlock.OPEN)) || (state.get(DoorBlock.FACING) == Direction.SOUTH && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT && state.get(DoorBlock.OPEN)) || (state.get(DoorBlock.FACING) == Direction.NORTH && state.get(DoorBlock.HINGE) == DoorHinge.LEFT && state.get(DoorBlock.OPEN))) {
 			renderDirection = Direction.WEST;
-		} else if ((state.get(DoorBlock.FACING) == Direction.SOUTH && !state.get(DoorBlock.OPEN))
-				|| (state.get(DoorBlock.FACING) == Direction.WEST && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT
-						&& state.get(DoorBlock.OPEN))
-				|| (state.get(DoorBlock.FACING) == Direction.EAST && state.get(DoorBlock.HINGE) == DoorHinge.LEFT
-						&& state.get(DoorBlock.OPEN))) {
+		} else if ((state.get(DoorBlock.FACING) == Direction.SOUTH && !state.get(DoorBlock.OPEN)) || (state.get(DoorBlock.FACING) == Direction.WEST && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT && state.get(DoorBlock.OPEN)) || (state.get(DoorBlock.FACING) == Direction.EAST && state.get(DoorBlock.HINGE) == DoorHinge.LEFT && state.get(DoorBlock.OPEN))) {
 			renderDirection = Direction.NORTH;
-		} else if ((state.get(DoorBlock.FACING) == Direction.WEST && !state.get(DoorBlock.OPEN))
-				|| (state.get(DoorBlock.FACING) == Direction.NORTH && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT
-						&& state.get(DoorBlock.OPEN))
-				|| (state.get(DoorBlock.FACING) == Direction.SOUTH && state.get(DoorBlock.HINGE) == DoorHinge.LEFT
-						&& state.get(DoorBlock.OPEN))) {
+		} else if ((state.get(DoorBlock.FACING) == Direction.WEST && !state.get(DoorBlock.OPEN)) || (state.get(DoorBlock.FACING) == Direction.NORTH && state.get(DoorBlock.HINGE) == DoorHinge.RIGHT && state.get(DoorBlock.OPEN)) || (state.get(DoorBlock.FACING) == Direction.SOUTH && state.get(DoorBlock.HINGE) == DoorHinge.LEFT && state.get(DoorBlock.OPEN))) {
 			renderDirection = Direction.EAST;
 		} else {
 			renderDirection = Direction.NORTH;
@@ -762,8 +765,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			sync();
 		} else {
 			MinecraftClient.getInstance();
-			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(),
-					pos.getX(), pos.getY(), pos.getZ());
+			MinecraftClient.getInstance().worldRenderer.scheduleBlockRenders(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
 		}
 	}
 

@@ -52,14 +52,12 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 
 	@Override
 	public Sprite getSprite() {
-		return MinecraftClient.getInstance().getBlockRenderManager().getModel(Blocks.STONE.getDefaultState())
-				.getSprite();
+		return MinecraftClient.getInstance().getBlockRenderManager().getModel(Blocks.STONE.getDefaultState()).getSprite();
 	}
 
 	@Override
 	public ModelTransformation getTransformation() {
-		return MinecraftClient.getInstance().getBakedModelManager()
-				.getModel(new ModelIdentifier("minecraft:block/block")).getTransformation();
+		return MinecraftClient.getInstance().getBakedModelManager().getModel(new ModelIdentifier("minecraft:block/block")).getTransformation();
 	}
 
 	@Override
@@ -73,8 +71,7 @@ public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 	}
 
 	@Override
-	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos,
-			Supplier<Random> randomSupplier, RenderContext context) {
+	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 		BlockEntity entity = blockView.getBlockEntity(pos);
 		if (entity instanceof CamoBlockEntity) {
 			((CamoBlockEntity) entity).renderBlock(blockView, state, pos, randomSupplier, context);

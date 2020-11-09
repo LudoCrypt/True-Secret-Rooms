@@ -28,14 +28,12 @@ public class CamoBlockUnbakedModel implements UnbakedModel {
 	}
 
 	@Override
-	public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter,
-			Set<Pair<String, String>> unresolvedTextureReferences) {
+	public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter,
-			ModelBakeSettings rotationContainer, Identifier modelId) {
+	public BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId) {
 		return new CamoBlockBakedModel();
 	}
 
