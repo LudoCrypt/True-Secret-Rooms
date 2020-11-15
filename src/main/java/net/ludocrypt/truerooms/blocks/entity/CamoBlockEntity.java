@@ -4,12 +4,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.fabricmc.fabric.api.server.PlayerStream;
 import net.ludocrypt.truerooms.SecretRooms;
 import net.ludocrypt.truerooms.blocks.DoorBlock;
 import net.ludocrypt.truerooms.blocks.HingeGateBlock;
@@ -28,19 +32,22 @@ import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockRenderView;
 
-public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSerializable {
+public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSerializable, Tickable {
 
-	public BlockState upState = Blocks.STONE.getDefaultState();
-	public BlockState downState = Blocks.STONE.getDefaultState();
-	public BlockState northState = Blocks.STONE.getDefaultState();
-	public BlockState eastState = Blocks.STONE.getDefaultState();
-	public BlockState southState = Blocks.STONE.getDefaultState();
-	public BlockState westState = Blocks.STONE.getDefaultState();
+	public BlockState upState = Blocks.AIR.getDefaultState();
+	public BlockState downState = Blocks.AIR.getDefaultState();
+	public BlockState northState = Blocks.AIR.getDefaultState();
+	public BlockState eastState = Blocks.AIR.getDefaultState();
+	public BlockState southState = Blocks.AIR.getDefaultState();
+	public BlockState westState = Blocks.AIR.getDefaultState();
 
 	public Direction upDirection = Direction.UP;
 	public Direction downDirection = Direction.DOWN;
@@ -58,8 +65,101 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 	public boolean waxed = false;
 
+	public int age = 0;
+
 	public CamoBlockEntity() {
 		super(SecretRooms.CAMO_BLOCK_ENTITY);
+	}
+
+	@Override
+	public void tick() {
+		if (!world.isClient) {
+			age++;
+			if (age == 30) {
+				updateSide(upState, Direction.UP);
+			}
+			if (age == 60) {
+				updateSide(downState, Direction.DOWN);
+			}
+			if (age == 90) {
+				updateSide(northState, Direction.NORTH);
+			}
+			if (age == 120) {
+				updateSide(eastState, Direction.EAST);
+			}
+			if (age == 150) {
+				updateSide(southState, Direction.SOUTH);
+			}
+			if (age == 180) {
+				updateSide(westState, Direction.WEST);
+			}
+			if (age == 210) {
+				updateDirection(upDirection, Direction.UP);
+			}
+			if (age == 240) {
+				updateDirection(downDirection, Direction.DOWN);
+			}
+			if (age == 270) {
+				updateDirection(northDirection, Direction.NORTH);
+			}
+			if (age == 300) {
+				updateDirection(eastDirection, Direction.EAST);
+			}
+			if (age == 330) {
+				updateDirection(southDirection, Direction.SOUTH);
+			}
+			if (age == 360) {
+				updateDirection(westDirection, Direction.WEST);
+			}
+			if (age == 390) {
+				updateRotation(upRotation, Direction.UP);
+			}
+			if (age == 420) {
+				updateRotation(downRotation, Direction.DOWN);
+			}
+			if (age == 450) {
+				updateRotation(northRotation, Direction.NORTH);
+			}
+			if (age == 480) {
+				updateRotation(eastRotation, Direction.EAST);
+			}
+			if (age == 510) {
+				updateRotation(southRotation, Direction.SOUTH);
+			}
+			if (age == 540) {
+				updateRotation(westRotation, Direction.WEST);
+				age = 0;
+			}
+		}
+	}
+
+	public void updateSide(BlockState state, Direction dir) {
+		PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
+		CompoundTag tag = new CompoundTag();
+		tag.put("state", NbtHelper.fromBlockState(state));
+		passedData.writeCompoundTag(tag);
+		passedData.writeEnumConstant(dir);
+		passedData.writeBlockPos(pos);
+		Stream<ServerPlayerEntity> watchingPlayers = PlayerStream.all(world.getServer());
+		watchingPlayers.forEach(player -> ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, SecretRooms.id("update_side"), passedData));
+	}
+
+	public void updateDirection(Direction faceDir, Direction dir) {
+		PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
+		passedData.writeEnumConstant(faceDir);
+		passedData.writeString(dir.getName());
+		passedData.writeBlockPos(pos);
+		Stream<ServerPlayerEntity> watchingPlayers = PlayerStream.all(world.getServer());
+		watchingPlayers.forEach(player -> ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, SecretRooms.id("update_direction"), passedData));
+	}
+
+	public void updateRotation(int rotation, Direction dir) {
+		PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
+		passedData.writeInt(rotation);
+		passedData.writeEnumConstant(dir);
+		passedData.writeBlockPos(pos);
+		Stream<ServerPlayerEntity> watchingPlayers = PlayerStream.all(world.getServer());
+		watchingPlayers.forEach(player -> ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, SecretRooms.id("update_rotation"), passedData));
 	}
 
 	@Override
@@ -86,6 +186,8 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	}
 
 	public CompoundTag serialize(CompoundTag tag) {
+
+		tag.putInt("age", age);
 
 		tag.put("upState", NbtHelper.fromBlockState(upState));
 		tag.put("downState", NbtHelper.fromBlockState(downState));
@@ -119,6 +221,10 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 	}
 
 	public void deserialize(CompoundTag tag) {
+
+		if (tag.contains("age")) {
+			this.age = tag.getInt("age");
+		}
 
 		if (tag.contains("upState")) {
 			this.upState = NbtHelper.toBlockState(tag.getCompound("upState"));
