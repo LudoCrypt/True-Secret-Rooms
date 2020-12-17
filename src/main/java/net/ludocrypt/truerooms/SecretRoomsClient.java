@@ -30,16 +30,22 @@ public class SecretRoomsClient implements ClientModInitializer {
 			BlockPos pos = attachedData.readBlockPos();
 			BlockState state = NbtHelper.toBlockState(tag.getCompound("state"));
 			packetContext.getTaskQueue().execute(() -> {
-				((CamoBlockEntity) packetContext.getPlayer().world.getBlockEntity(pos)).setState(dir, state);
+				CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) packetContext.getPlayer().world.getBlockEntity(pos));
+				if (camoBlockEntity != null) {
+					camoBlockEntity.setState(dir, state);
+				}
 			});
 		});
 
 		ClientSidePacketRegistry.INSTANCE.register(SecretRooms.id("update_direction"), (packetContext, attachedData) -> {
 			Direction faceDir = attachedData.readEnumConstant(Direction.class);
-			Direction dir = CamoBlockEntity.byName(attachedData.readString());
+			Direction dir = attachedData.readEnumConstant(Direction.class);
 			BlockPos pos = attachedData.readBlockPos();
 			packetContext.getTaskQueue().execute(() -> {
-				((CamoBlockEntity) packetContext.getPlayer().world.getBlockEntity(pos)).setDirection(faceDir, dir);
+				CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) packetContext.getPlayer().world.getBlockEntity(pos));
+				if (camoBlockEntity != null) {
+					camoBlockEntity.setDirection(dir, faceDir);
+				}
 			});
 		});
 
@@ -48,7 +54,10 @@ public class SecretRoomsClient implements ClientModInitializer {
 			Direction dir = attachedData.readEnumConstant(Direction.class);
 			BlockPos pos = attachedData.readBlockPos();
 			packetContext.getTaskQueue().execute(() -> {
-				((CamoBlockEntity) packetContext.getPlayer().world.getBlockEntity(pos)).setRotation(dir, rotation);
+				CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) packetContext.getPlayer().world.getBlockEntity(pos));
+				if (camoBlockEntity != null) {
+					camoBlockEntity.setRotation(dir, rotation);
+				}
 			});
 		});
 

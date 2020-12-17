@@ -43,15 +43,16 @@ public class StaffOfCamo extends Item {
 				if (!camoBlockEntity.waxed) {
 					if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO) {
 						if (itemStack.hasTag()) {
-							camoBlockEntity.setState(dir, getState(itemStack));
-							camoBlockEntity.setDirection(dir, getDirection(itemStack));
+							SecretRooms.updateSide(getState(itemStack), dir, blockPos, camoBlockEntity);
+							SecretRooms.updateDirection(getDirection(itemStack), dir, blockPos, camoBlockEntity);
 						} else {
 							BlockState stateAdjacent = camoBlockEntity.getState(dir);
 							putStateAndDirection(itemStack, stateAdjacent, dir);
 						}
 					} else if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
-						camoBlockEntity.setRotation(dir, camoBlockEntity.getRotation(dir) == 270 ? 0 : camoBlockEntity.getRotation(dir) + 90);
+						SecretRooms.updateRotation(camoBlockEntity.getRotation(dir) == 270 ? 0 : camoBlockEntity.getRotation(dir) + 90, dir, blockPos, camoBlockEntity);
 					}
+					camoBlockEntity.refresh();
 					return ActionResult.SUCCESS;
 				} else {
 					return ActionResult.FAIL;
@@ -90,9 +91,7 @@ public class StaffOfCamo extends Item {
 		CompoundTag tag = itemStack.getOrCreateTag();
 		Direction tempDir = Direction.NORTH;
 
-		if (tag.contains("setDirection", 8)) {
-			tempDir = CamoBlockEntity.byName(tag.getString("setDirection"));
-		}
+		tempDir = CamoBlockEntity.byName(tag.getString("setDirection"));
 
 		return tempDir;
 	}

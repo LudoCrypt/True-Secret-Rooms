@@ -1,8 +1,11 @@
 package net.ludocrypt.truerooms.blocks;
 
+import java.util.Random;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.ludocrypt.truerooms.SecretRooms;
 import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -15,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
@@ -38,7 +42,13 @@ public class CamoBlock extends BlockWithEntity {
 
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+		if (!world.isClient) {
+			state.scheduledTick((ServerWorld) world, pos, world.getRandom());
+		}
+	}
 
+	@Override
+	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
 
 			CamoBlockEntity blockEntity = (CamoBlockEntity) world.getBlockEntity(pos);
@@ -51,22 +61,23 @@ public class CamoBlock extends BlockWithEntity {
 				if (block instanceof CamoBlock) {
 					if (world.getBlockEntity(blockPos) instanceof CamoBlockEntity) {
 						CamoBlockEntity blockEntityAdjacent = (CamoBlockEntity) world.getBlockEntity(blockPos);
-						blockEntity.setState(dir, blockEntityAdjacent.getState(faceDir));
-						blockEntity.setDirection(dir, faceDir);
+						SecretRooms.updateSide(blockEntityAdjacent.getState(faceDir), dir, pos, blockEntity);
+						SecretRooms.updateDirection(faceDir, dir, pos, blockEntity);
 					} else {
-						blockEntity.setState(dir, Blocks.STONE.getDefaultState());
-						blockEntity.setDirection(dir, faceDir);
+						SecretRooms.updateSide(Blocks.STONE.getDefaultState(), dir, pos, blockEntity);
+						SecretRooms.updateDirection(faceDir, dir, pos, blockEntity);
 					}
 				} else if (block != Blocks.AIR) {
-					blockEntity.setState(dir, blockState);
-					blockEntity.setDirection(dir, faceDir);
+					SecretRooms.updateSide(blockState, dir, pos, blockEntity);
+					SecretRooms.updateDirection(faceDir, dir, pos, blockEntity);
 				} else {
-					blockEntity.setState(dir, Blocks.STONE.getDefaultState());
-					blockEntity.setDirection(dir, faceDir);
+					SecretRooms.updateSide(Blocks.STONE.getDefaultState(), dir, pos, blockEntity);
+					SecretRooms.updateDirection(faceDir, dir, pos, blockEntity);
 				}
 			}
+			blockEntity.refresh();
 		}
-		super.onPlaced(world, pos, state, placer, itemStack);
+		world.scheduleBlockRerenderIfNeeded(pos, state, state);
 	}
 
 	@Override

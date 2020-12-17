@@ -1,9 +1,14 @@
 package net.ludocrypt.truerooms;
 
+import java.util.stream.Stream;
+
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.server.PlayerStream;
 import net.ludocrypt.truerooms.blocks.DoorBlock;
 import net.ludocrypt.truerooms.blocks.GhostBlock;
 import net.ludocrypt.truerooms.blocks.HingeGateBlock;
@@ -15,17 +20,25 @@ import net.ludocrypt.truerooms.blocks.TrapdoorBlock;
 import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
 import net.ludocrypt.truerooms.items.StaffOfCamo;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 
+@SuppressWarnings("resource")
 public class SecretRooms implements ModInitializer {
 
 	public static BlockEntityType<CamoBlockEntity> CAMO_BLOCK_ENTITY;
@@ -105,6 +118,44 @@ public class SecretRooms implements ModInitializer {
 
 		Registry.register(Registry.ITEM, id("staff_of_camo_rotation_mode"), STAFF_OF_CAMO_ROTATION_MODE);
 
+	}
+
+	public static void updateSide(BlockState state, Direction dir, BlockPos pos, CamoBlockEntity entity) {
+		if (!entity.getWorld().isClient) {
+			PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
+			CompoundTag tag = new CompoundTag();
+			tag.put("state", NbtHelper.fromBlockState(state));
+			passedData.writeCompoundTag(tag);
+			passedData.writeEnumConstant(dir);
+			passedData.writeBlockPos(pos);
+			Stream<PlayerEntity> watchingPlayers = PlayerStream.world(entity.getWorld());
+			watchingPlayers.forEach(player -> ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, SecretRooms.id("update_side"), passedData));
+		}
+		entity.setState(dir, state);
+	}
+
+	public static void updateDirection(Direction faceDir, Direction dir, BlockPos pos, CamoBlockEntity entity) {
+		if (!entity.getWorld().isClient) {
+			PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
+			passedData.writeEnumConstant(faceDir);
+			passedData.writeEnumConstant(dir);
+			passedData.writeBlockPos(pos);
+			Stream<PlayerEntity> watchingPlayers = PlayerStream.world(entity.getWorld());
+			watchingPlayers.forEach(player -> ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, SecretRooms.id("update_direction"), passedData));
+		}
+		entity.setDirection(dir, faceDir);
+	}
+
+	public static void updateRotation(int rotation, Direction dir, BlockPos pos, CamoBlockEntity entity) {
+		if (!entity.getWorld().isClient) {
+			PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
+			passedData.writeInt(rotation);
+			passedData.writeEnumConstant(dir);
+			passedData.writeBlockPos(pos);
+			Stream<PlayerEntity> watchingPlayers = PlayerStream.world(entity.getWorld());
+			watchingPlayers.forEach(player -> ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, SecretRooms.id("update_rotation"), passedData));
+		}
+		entity.setRotation(dir, rotation);
 	}
 
 	public static Identifier id(String id) {
