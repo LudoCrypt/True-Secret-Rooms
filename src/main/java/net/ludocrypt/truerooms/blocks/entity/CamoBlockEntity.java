@@ -527,6 +527,10 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 				tempRotation = tag.getInt(direction.name().toLowerCase() + "Rotation");
 			}
 
+			if (!tempState.isSideSolidFullSquare(blockView, pos, tempDirection)) {
+				tempState = Blocks.STONE.getDefaultState();
+			}
+			
 			BakedModel fullModel = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState);
 			List<BakedQuad> abqList = fullModel.getQuads(tempState, tempDirection, randomSupplier.get());
 

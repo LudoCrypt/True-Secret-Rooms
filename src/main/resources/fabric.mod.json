@@ -8,10 +8,11 @@
 		"LudoCrypt"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/true-secret-rooms",
+		"sources": "https://github.com/LudoCrypt/True-Secret-Rooms",
+		"issues": "https://github.com/LudoCrypt/True-Secret-Rooms/issues"
 	},
-	"license": "CC0-1.0",
+	"license": "LGPLv3",
 	"icon": "assets/truerooms/icon.png",
 	"environment": "*",
 	"entrypoints": {
