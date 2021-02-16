@@ -1,10 +1,5 @@
 package net.ludocrypt.truerooms.render;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.function.Supplier;
-
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
@@ -23,64 +18,69 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockRenderView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Supplier;
+
 public class CamoBlockBakedModel implements FabricBakedModel, BakedModel {
 
-	@Override
-	public List<BakedQuad> getQuads(BlockState state, Direction face, Random random) {
-		return new ArrayList<>();
-	}
+    @Override
+    public List<BakedQuad> getQuads(BlockState state, Direction face, Random random) {
+        return new ArrayList<>();
+    }
 
-	@Override
-	public boolean useAmbientOcclusion() {
-		return true;
-	}
+    @Override
+    public boolean useAmbientOcclusion() {
+        return true;
+    }
 
-	@Override
-	public boolean hasDepth() {
-		return false;
-	}
+    @Override
+    public boolean hasDepth() {
+        return false;
+    }
 
-	@Override
-	public boolean isSideLit() {
-		return true;
-	}
+    @Override
+    public boolean isSideLit() {
+        return true;
+    }
 
-	@Override
-	public boolean isBuiltin() {
-		return false;
-	}
+    @Override
+    public boolean isBuiltin() {
+        return false;
+    }
 
-	@Override
-	public Sprite getSprite() {
-		return MinecraftClient.getInstance().getBlockRenderManager().getModel(Blocks.STONE.getDefaultState()).getSprite();
-	}
+    @Override
+    public Sprite getSprite() {
+        return MinecraftClient.getInstance().getBlockRenderManager().getModel(Blocks.STONE.getDefaultState()).getSprite();
+    }
 
-	@Override
-	public ModelTransformation getTransformation() {
-		return MinecraftClient.getInstance().getBakedModelManager().getModel(new ModelIdentifier("minecraft:block/block")).getTransformation();
-	}
+    @Override
+    public ModelTransformation getTransformation() {
+        return MinecraftClient.getInstance().getBakedModelManager().getModel(new ModelIdentifier("minecraft:block/block")).getTransformation();
+    }
 
-	@Override
-	public ModelOverrideList getOverrides() {
-		return ModelOverrideList.EMPTY;
-	}
+    @Override
+    public ModelOverrideList getOverrides() {
+        return ModelOverrideList.EMPTY;
+    }
 
-	@Override
-	public boolean isVanillaAdapter() {
-		return false;
-	}
+    @Override
+    public boolean isVanillaAdapter() {
+        return false;
+    }
 
-	@Override
-	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
-		BlockEntity entity = blockView.getBlockEntity(pos);
-		if (entity instanceof CamoBlockEntity) {
-			((CamoBlockEntity) entity).renderBlock(blockView, state, pos, randomSupplier, context);
-		}
-	}
+    @Override
+    public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
+        BlockEntity entity = blockView.getBlockEntity(pos);
+        if (entity instanceof CamoBlockEntity) {
+            ((CamoBlockEntity) entity).renderBlock(blockView, state, pos, randomSupplier, context);
+        }
+    }
 
-	@Override
-	public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
+    @Override
+    public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
 
-	}
+    }
 
 }

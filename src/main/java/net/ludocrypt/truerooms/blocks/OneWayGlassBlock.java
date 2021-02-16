@@ -11,16 +11,16 @@ import net.minecraft.world.World;
 
 public class OneWayGlassBlock extends SolidBlock {
 
-	public OneWayGlassBlock() {
-		super();
-	}
+    public OneWayGlassBlock() {
+        super();
+    }
 
-	@Override
-	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-		if (world.isClient) {
-			MinecraftClient client = MinecraftClient.getInstance();
-			SecretRoomsClient.sendHitSetter(pos, (BlockHitResult) client.crosshairTarget, true);
-		}
-	}
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+        if (world.isClient) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            SecretRoomsClient.sendHitSetter(pos, (BlockHitResult) client.crosshairTarget, true);
+        }
+    }
 
 }

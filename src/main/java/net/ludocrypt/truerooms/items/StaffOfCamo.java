@@ -21,79 +21,79 @@ import net.minecraft.world.World;
 
 public class StaffOfCamo extends Item {
 
-	public StaffOfCamo(Settings settings) {
-		super(settings);
-	}
+    public StaffOfCamo(Settings settings) {
+        super(settings);
+    }
 
-	@Override
-	public ActionResult useOnBlock(ItemUsageContext context) {
+    @Override
+    public ActionResult useOnBlock(ItemUsageContext context) {
 
-		World world = context.getWorld();
-		BlockPos blockPos = context.getBlockPos();
-		BlockState blockState = world.getBlockState(blockPos);
-		Block block = blockState.getBlock();
-		ItemStack itemStack = context.getStack();
-		Direction dir = context.getSide();
+        World world = context.getWorld();
+        BlockPos blockPos = context.getBlockPos();
+        BlockState blockState = world.getBlockState(blockPos);
+        Block block = blockState.getBlock();
+        ItemStack itemStack = context.getStack();
+        Direction dir = context.getSide();
 
-		if (block instanceof CamoBlock) {
-			if (world.getBlockEntity(blockPos) instanceof CamoBlockEntity) {
+        if (block instanceof CamoBlock) {
+            if (world.getBlockEntity(blockPos) instanceof CamoBlockEntity) {
 
-				CamoBlockEntity camoBlockEntity = (CamoBlockEntity) world.getBlockEntity(blockPos);
+                CamoBlockEntity camoBlockEntity = (CamoBlockEntity) world.getBlockEntity(blockPos);
 
-				if (!camoBlockEntity.waxed) {
-					if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO) {
-						if (itemStack.hasTag()) {
-							SecretRooms.updateSide(getState(itemStack), dir, blockPos, camoBlockEntity);
-							SecretRooms.updateDirection(getDirection(itemStack), dir, blockPos, camoBlockEntity);
-						} else {
-							BlockState stateAdjacent = camoBlockEntity.getState(dir);
-							putStateAndDirection(itemStack, stateAdjacent, dir);
-						}
-					} else if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
-						SecretRooms.updateRotation(camoBlockEntity.getRotation(dir) == 270 ? 0 : camoBlockEntity.getRotation(dir) + 90, dir, blockPos, camoBlockEntity);
-					}
-					camoBlockEntity.refresh();
-					return ActionResult.SUCCESS;
-				} else {
-					return ActionResult.FAIL;
-				}
-			} else {
-				return ActionResult.FAIL;
-			}
-		} else if (block != Blocks.AIR && itemStack.getItem() != SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
-			putStateAndDirection(itemStack, blockState, dir);
-			return ActionResult.SUCCESS;
-		} else {
-			return ActionResult.FAIL;
-		}
-	}
+                if (!camoBlockEntity.waxed) {
+                    if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO) {
+                        if (itemStack.hasTag()) {
+                            SecretRooms.updateSide(getState(itemStack), dir, blockPos, camoBlockEntity);
+                            SecretRooms.updateDirection(getDirection(itemStack), dir, blockPos, camoBlockEntity);
+                        } else {
+                            BlockState stateAdjacent = camoBlockEntity.getState(dir);
+                            putStateAndDirection(itemStack, stateAdjacent, dir);
+                        }
+                    } else if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
+                        SecretRooms.updateRotation(camoBlockEntity.getRotation(dir) == 270 ? 0 : camoBlockEntity.getRotation(dir) + 90, dir, blockPos, camoBlockEntity);
+                    }
+                    camoBlockEntity.refresh();
+                    return ActionResult.SUCCESS;
+                } else {
+                    return ActionResult.FAIL;
+                }
+            } else {
+                return ActionResult.FAIL;
+            }
+        } else if (block != Blocks.AIR && itemStack.getItem() != SecretRooms.STAFF_OF_CAMO_ROTATION_MODE) {
+            putStateAndDirection(itemStack, blockState, dir);
+            return ActionResult.SUCCESS;
+        } else {
+            return ActionResult.FAIL;
+        }
+    }
 
-	@Override
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-		if (user.isSneaking()) {
-			user.setStackInHand(hand, new ItemStack(user.getStackInHand(hand).getItem() == SecretRooms.STAFF_OF_CAMO ? SecretRooms.STAFF_OF_CAMO_ROTATION_MODE : SecretRooms.STAFF_OF_CAMO));
-		}
-		return super.use(world, user, hand);
-	}
+    @Override
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        if (user.isSneaking()) {
+            user.setStackInHand(hand, new ItemStack(user.getStackInHand(hand).getItem() == SecretRooms.STAFF_OF_CAMO ? SecretRooms.STAFF_OF_CAMO_ROTATION_MODE : SecretRooms.STAFF_OF_CAMO));
+        }
+        return super.use(world, user, hand);
+    }
 
-	private static void putStateAndDirection(ItemStack itemStack, BlockState state, Direction dir) {
-		CompoundTag tag = itemStack.getOrCreateTag();
-		tag.put("setState", NbtHelper.fromBlockState(state));
-		tag.putString("setDirection", dir.name().toLowerCase());
-	}
+    private static void putStateAndDirection(ItemStack itemStack, BlockState state, Direction dir) {
+        CompoundTag tag = itemStack.getOrCreateTag();
+        tag.put("setState", NbtHelper.fromBlockState(state));
+        tag.putString("setDirection", dir.name().toLowerCase());
+    }
 
-	private static BlockState getState(ItemStack itemStack) {
-		return NbtHelper.toBlockState(itemStack.getOrCreateSubTag("setState"));
-	}
+    private static BlockState getState(ItemStack itemStack) {
+        return NbtHelper.toBlockState(itemStack.getOrCreateSubTag("setState"));
+    }
 
-	private static Direction getDirection(ItemStack itemStack) {
+    private static Direction getDirection(ItemStack itemStack) {
 
-		CompoundTag tag = itemStack.getOrCreateTag();
-		Direction tempDir = Direction.NORTH;
+        CompoundTag tag = itemStack.getOrCreateTag();
+        Direction tempDir = Direction.NORTH;
 
-		tempDir = CamoBlockEntity.byName(tag.getString("setDirection"));
+        tempDir = CamoBlockEntity.byName(tag.getString("setDirection"));
 
-		return tempDir;
-	}
+        return tempDir;
+    }
 
 }

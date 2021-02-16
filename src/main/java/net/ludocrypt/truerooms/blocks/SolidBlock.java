@@ -6,8 +6,8 @@ import net.minecraft.sound.BlockSoundGroup;
 
 public class SolidBlock extends CamoBlock {
 
-	public SolidBlock() {
-		super(FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
-	}
+    public SolidBlock() {
+        super(FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
+    }
 
 }

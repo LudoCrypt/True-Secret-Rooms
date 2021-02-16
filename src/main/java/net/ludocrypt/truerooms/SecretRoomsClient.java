@@ -21,57 +21,57 @@ import net.minecraft.util.math.Direction;
 @Environment(EnvType.CLIENT)
 public class SecretRoomsClient implements ClientModInitializer {
 
-	@Override
-	public void onInitializeClient() {
+    @Override
+    public void onInitializeClient() {
 
-		ModelLoadingRegistry.INSTANCE.registerResourceProvider(rm -> new CamoBlockResourceProvider());
-		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getTranslucent(), SecretRooms.camoBlocksList);
+        ModelLoadingRegistry.INSTANCE.registerResourceProvider(rm -> new CamoBlockResourceProvider());
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getTranslucent(), SecretRooms.camoBlocksList);
 
-		ClientPlayNetworking.registerGlobalReceiver(SecretRooms.id("update_side"), (client, handler, buf, responseSender) -> {
-			CompoundTag tag = buf.readCompoundTag();
-			Direction dir = buf.readEnumConstant(Direction.class);
-			BlockPos pos = buf.readBlockPos();
-			BlockState state = NbtHelper.toBlockState(tag.getCompound("state"));
-			client.execute(() -> {
-				CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) client.world.getBlockEntity(pos));
-				if (camoBlockEntity != null) {
-					camoBlockEntity.setState(dir, state);
-				}
-			});
-		});
+        ClientPlayNetworking.registerGlobalReceiver(SecretRooms.id("update_side"), (client, handler, buf, responseSender) -> {
+            CompoundTag tag = buf.readCompoundTag();
+            Direction dir = buf.readEnumConstant(Direction.class);
+            BlockPos pos = buf.readBlockPos();
+            BlockState state = NbtHelper.toBlockState(tag.getCompound("state"));
+            client.execute(() -> {
+                CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) client.world.getBlockEntity(pos));
+                if (camoBlockEntity != null) {
+                    camoBlockEntity.setState(dir, state);
+                }
+            });
+        });
 
-		ClientPlayNetworking.registerGlobalReceiver(SecretRooms.id("update_direction"), (client, handler, buf, responseSender) -> {
-			Direction faceDir = buf.readEnumConstant(Direction.class);
-			Direction dir = buf.readEnumConstant(Direction.class);
-			BlockPos pos = buf.readBlockPos();
-			client.execute(() -> {
-				CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) client.world.getBlockEntity(pos));
-				if (camoBlockEntity != null) {
-					camoBlockEntity.setDirection(dir, faceDir);
-				}
-			});
-		});
+        ClientPlayNetworking.registerGlobalReceiver(SecretRooms.id("update_direction"), (client, handler, buf, responseSender) -> {
+            Direction faceDir = buf.readEnumConstant(Direction.class);
+            Direction dir = buf.readEnumConstant(Direction.class);
+            BlockPos pos = buf.readBlockPos();
+            client.execute(() -> {
+                CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) client.world.getBlockEntity(pos));
+                if (camoBlockEntity != null) {
+                    camoBlockEntity.setDirection(dir, faceDir);
+                }
+            });
+        });
 
-		ClientPlayNetworking.registerGlobalReceiver(SecretRooms.id("update_rotation"), (client, handler, buf, responseSender) -> {
-			int rotation = buf.readInt();
-			Direction dir = buf.readEnumConstant(Direction.class);
-			BlockPos pos = buf.readBlockPos();
-			client.execute(() -> {
-				CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) client.world.getBlockEntity(pos));
-				if (camoBlockEntity != null) {
-					camoBlockEntity.setRotation(dir, rotation);
-				}
-			});
-		});
+        ClientPlayNetworking.registerGlobalReceiver(SecretRooms.id("update_rotation"), (client, handler, buf, responseSender) -> {
+            int rotation = buf.readInt();
+            Direction dir = buf.readEnumConstant(Direction.class);
+            BlockPos pos = buf.readBlockPos();
+            client.execute(() -> {
+                CamoBlockEntity camoBlockEntity = ((CamoBlockEntity) client.world.getBlockEntity(pos));
+                if (camoBlockEntity != null) {
+                    camoBlockEntity.setRotation(dir, rotation);
+                }
+            });
+        });
 
-	}
+    }
 
-	public static void sendHitSetter(BlockPos pos, BlockHitResult hit, boolean glass) {
-		PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
-		passedData.writeBlockPos(pos);
-		passedData.writeBlockHitResult(hit);
-		passedData.writeBoolean(glass);
-		ClientPlayNetworking.send(SecretRooms.id("hit_setter"), passedData);
-	}
+    public static void sendHitSetter(BlockPos pos, BlockHitResult hit, boolean glass) {
+        PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
+        passedData.writeBlockPos(pos);
+        passedData.writeBlockHitResult(hit);
+        passedData.writeBoolean(glass);
+        ClientPlayNetworking.send(SecretRooms.id("hit_setter"), passedData);
+    }
 
 }
