@@ -12,13 +12,13 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.ludocrypt.truerooms.SecretRooms;
 import net.ludocrypt.truerooms.blocks.DoorBlock;
-import net.ludocrypt.truerooms.blocks.HingeGateBlock;
 import net.ludocrypt.truerooms.blocks.TrapdoorBlock;
 import net.ludocrypt.truerooms.mixin.AccessibleBakedQuad;
 import net.ludocrypt.truerooms.mixin.DirectionAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.enums.BlockHalf;
 import net.minecraft.block.enums.DoorHinge;
 import net.minecraft.client.MinecraftClient;
@@ -26,15 +26,15 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockRenderView;
+import net.minecraft.world.World;
 
-public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSerializable, Tickable {
+public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSerializable, BlockEntityTicker<CamoBlockEntity> {
 
 	public BlockState upState = Blocks.AIR.getDefaultState();
 	public BlockState downState = Blocks.AIR.getDefaultState();
@@ -61,44 +61,42 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 	public int age = 0;
 
-	public CamoBlockEntity() {
-		super(SecretRooms.CAMO_BLOCK_ENTITY);
+	public CamoBlockEntity(BlockPos pos, BlockState state) {
+		super(SecretRooms.CAMO_BLOCK_ENTITY, pos, state);
 	}
 
 	@Override
-	public void tick() {
-
+	public void tick(World world, BlockPos pos, BlockState state, CamoBlockEntity blockEntity) {
 		if (age % 120 == 0) {
 			refresh();
 		}
-
 		age++;
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
-		super.toTag(tag);
+	public NbtCompound writeNbt(NbtCompound tag) {
+		super.writeNbt(tag);
 		return serialize(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, CompoundTag tag) {
-		super.fromTag(state, tag);
+	public void readNbt(NbtCompound tag) {
+		super.readNbt(tag);
 		deserialize(tag);
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag tag) {
-		return toTag(tag);
+	public NbtCompound toClientTag(NbtCompound tag) {
+		return writeNbt(tag);
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag tag) {
-		fromTag(null, tag);
+	public void fromClientTag(NbtCompound tag) {
+		readNbt(tag);
 		update();
 	}
 
-	public CompoundTag serialize(CompoundTag tag) {
+	public NbtCompound serialize(NbtCompound tag) {
 
 		tag.putInt("age", age);
 
@@ -133,7 +131,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 	}
 
-	public void deserialize(CompoundTag tag) {
+	public void deserialize(NbtCompound tag) {
 
 		if (tag.contains("age")) {
 			this.age = tag.getInt("age");
@@ -310,7 +308,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempState;
 	}
 
-	public static BlockState getState(Direction dir, CompoundTag tag) {
+	public static BlockState getState(Direction dir, NbtCompound tag) {
 		BlockState tempState = Blocks.STONE.getDefaultState();
 		switch (dir) {
 		case UP:
@@ -380,7 +378,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempDir;
 	}
 
-	public static Direction getDir(Direction dir, CompoundTag tag) {
+	public static Direction getDir(Direction dir, NbtCompound tag) {
 		Direction tempDir;
 		switch (dir) {
 		case UP:
@@ -474,7 +472,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 		return tempInt;
 	}
 
-	public static int getRotation(Direction dir, CompoundTag tag) {
+	public static int getRotation(Direction dir, NbtCompound tag) {
 		int tempInt;
 		switch (dir) {
 		case UP:
@@ -507,7 +505,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 		QuadEmitter emitter = context.getEmitter();
 
-		CompoundTag tag = toClientTag(new CompoundTag());
+		NbtCompound tag = toClientTag(new NbtCompound());
 
 		for (Direction direction : Direction.values()) {
 
@@ -530,7 +528,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 			if (!tempState.isSideSolidFullSquare(blockView, pos, tempDirection)) {
 				tempState = Blocks.STONE.getDefaultState();
 			}
-			
+
 			BakedModel fullModel = MinecraftClient.getInstance().getBlockRenderManager().getModel(tempState);
 			List<BakedQuad> abqList = fullModel.getQuads(tempState, tempDirection, randomSupplier.get());
 
@@ -541,7 +539,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 				Sprite quadSprite = ((AccessibleBakedQuad) quad).getSprite();
 
-				if (state.getBlock() instanceof DoorBlock || state.getBlock() instanceof HingeGateBlock) {
+				if (state.getBlock() instanceof DoorBlock) {
 					renderDoor(emitter, state, direction);
 				} else if (state.getBlock() instanceof TrapdoorBlock) {
 					renderTrapdoor(emitter, state, direction);
@@ -804,7 +802,7 @@ public class CamoBlockEntity extends BlockEntity implements BlockEntityClientSer
 
 	@Override
 	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		return new BlockEntityUpdateS2CPacket(this.pos, -1, serialize(new CompoundTag()));
+		return new BlockEntityUpdateS2CPacket(this.pos, -1, serialize(new NbtCompound()));
 	}
 
 }

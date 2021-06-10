@@ -14,11 +14,5 @@
 	"item.truerooms.camouflage_paste": "Camouflage Paste",
 	"item.truerooms.camolock_eye": "Eye of Camolock",
 	"item.truerooms.staff_of_camo": "Staff Of Camo",
-	"item.truerooms.staff_of_camo_rotation_mode": "Staff Of Camo Rotation Mode",
-	"advancements.truerooms.root.title": "Secret Rooms",
-	"advancements.truerooms.root.descr": "Pasting your way to victory by obtaining camouflage paste",
-	"advancements.truerooms.staff.title": "Eyes of the beholder",
-	"advancements.truerooms.staff.descr": "Stick a Camolock's eye on top of a trident",
-	"advancements.truerooms.eye.title": "Eye Sea You",
-	"advancements.truerooms.eye.descr": "Obtain a Camolock's Eye"
+	"item.truerooms.staff_of_camo_rotation_mode": "Staff Of Camo Rotation Mode"
 }

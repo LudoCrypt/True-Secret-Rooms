@@ -11,8 +11,8 @@ import net.minecraft.world.World;
 
 public class OneWayGlassBlock extends SolidBlock {
 
-	public OneWayGlassBlock() {
-		super();
+	public OneWayGlassBlock(Settings settings) {
+		super(settings);
 	}
 
 	@Override

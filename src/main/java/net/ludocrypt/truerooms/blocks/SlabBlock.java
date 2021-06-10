@@ -1,134 +1,81 @@
 package net.ludocrypt.truerooms.blocks;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.ludocrypt.truerooms.SecretRoomsClient;
+import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.block.Waterloggable;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.entity.ai.pathing.NavigationType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.tag.FluidTags;
+import net.minecraft.item.Items;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.world.World;
 
-public class SlabBlock extends CamoBlock implements Waterloggable {
+public class SlabBlock extends net.minecraft.block.SlabBlock implements BlockEntityProvider, CamoBlock {
 
-	public static final EnumProperty<SlabType> TYPE;
-	public static final BooleanProperty WATERLOGGED;
-	public static final VoxelShape BOTTOM_SHAPE;
-	public static final VoxelShape TOP_SHAPE;
-
-	public SlabBlock() {
-		super(FabricBlockSettings.of(Material.STONE).sounds(BlockSoundGroup.STONE).hardness(1).resistance(2));
-		this.setDefaultState((BlockState) ((BlockState) this.getDefaultState().with(TYPE, SlabType.BOTTOM)).with(WATERLOGGED, false));
-	}
-
-	public boolean hasSidedTransparency(BlockState state) {
-		return state.get(TYPE) != SlabType.DOUBLE;
-	}
-
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(TYPE, WATERLOGGED);
+	public SlabBlock(Settings settings) {
+		super(settings);
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		SlabType slabType = (SlabType) state.get(TYPE);
-		switch (slabType) {
-		case DOUBLE:
-			return VoxelShapes.fullCube();
-		case TOP:
-			return TOP_SHAPE;
-		default:
-			return BOTTOM_SHAPE;
-		}
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new CamoBlockEntity(pos, state);
 	}
 
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		BlockPos blockPos = ctx.getBlockPos();
-		BlockState blockState = ctx.getWorld().getBlockState(blockPos);
-		if (blockState.isOf(this)) {
-			return (BlockState) ((BlockState) blockState.with(TYPE, SlabType.DOUBLE)).with(WATERLOGGED, false);
-		} else {
-			FluidState fluidState = ctx.getWorld().getFluidState(blockPos);
-			BlockState blockState2 = (BlockState) ((BlockState) this.getDefaultState().with(TYPE, SlabType.BOTTOM)).with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
-			Direction direction = ctx.getSide();
-			return direction != Direction.DOWN && (direction == Direction.UP || ctx.getHitPos().y - (double) blockPos.getY() <= 0.5D) ? blockState2 : (BlockState) blockState2.with(TYPE, SlabType.TOP);
+	@Override
+	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+		if (world.isClient) {
+			MinecraftClient client = MinecraftClient.getInstance();
+			SecretRoomsClient.sendHitSetter(pos, (BlockHitResult) client.crosshairTarget, false);
 		}
+		super.onPlaced(world, pos, state, placer, itemStack);
 	}
 
-	public boolean canReplace(BlockState state, ItemPlacementContext context) {
-		ItemStack itemStack = context.getStack();
-		SlabType slabType = (SlabType) state.get(TYPE);
-		if (slabType != SlabType.DOUBLE && itemStack.getItem() == this.asItem()) {
-			if (context.canReplaceExisting()) {
-				boolean bl = context.getHitPos().y - (double) context.getBlockPos().getY() > 0.5D;
-				Direction direction = context.getSide();
-				if (slabType == SlabType.BOTTOM) {
-					return direction == Direction.UP || bl && direction.getAxis().isHorizontal();
-				} else {
-					return direction == Direction.DOWN || !bl && direction.getAxis().isHorizontal();
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
+			CamoBlockEntity blockEntity = (CamoBlockEntity) world.getBlockEntity(pos);
+			ItemStack itemStack = player.getStackInHand(hand);
+			if (itemStack.getItem() == Items.HONEYCOMB) {
+				if (!blockEntity.waxed) {
+					blockEntity.waxed = true;
+					player.playSound(SoundEvents.BLOCK_HONEY_BLOCK_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
+					return ActionResult.SUCCESS;
 				}
-			} else {
-				return true;
 			}
-		} else {
-			return false;
 		}
+		return super.onUse(state, world, pos, player, hand, hit);
 	}
 
-	public FluidState getFluidState(BlockState state) {
-		return (Boolean) state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+	@Override
+	public BlockRenderType getRenderType(BlockState state) {
+		return BlockRenderType.MODEL;
 	}
 
-	public boolean tryFillWithFluid(WorldAccess world, BlockPos pos, BlockState state, FluidState fluidState) {
-		return state.get(TYPE) != SlabType.DOUBLE ? Waterloggable.super.tryFillWithFluid(world, pos, state, fluidState) : false;
+	@Override
+	@Environment(EnvType.CLIENT)
+	public boolean isSideInvisible(BlockState state, BlockState stateFrom, Direction direction) {
+		return (stateFrom.getBlock() instanceof CamoBlock) ? true : super.isSideInvisible(state, stateFrom, direction);
 	}
 
-	public boolean canFillWithFluid(BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
-		return state.get(TYPE) != SlabType.DOUBLE ? Waterloggable.super.canFillWithFluid(world, pos, state, fluid) : false;
+	@Override
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.fullCube();
 	}
 
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		if ((Boolean) state.get(WATERLOGGED)) {
-			world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
-		}
-
-		return super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
-	}
-
-	public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
-		switch (type) {
-		case LAND:
-			return false;
-		case WATER:
-			return world.getFluidState(pos).isIn(FluidTags.WATER);
-		case AIR:
-			return false;
-		default:
-			return false;
-		}
-	}
-
-	static {
-		TYPE = Properties.SLAB_TYPE;
-		WATERLOGGED = Properties.WATERLOGGED;
-		BOTTOM_SHAPE = Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D);
-		TOP_SHAPE = Block.createCuboidShape(0.0D, 8.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-	}
 }

@@ -11,7 +11,7 @@ import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
 import net.ludocrypt.truerooms.render.CamoBlockResourceProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.hit.BlockHitResult;
@@ -28,7 +28,7 @@ public class SecretRoomsClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getTranslucent(), SecretRooms.camoBlocksList);
 
 		ClientPlayNetworking.registerGlobalReceiver(SecretRooms.id("update_side"), (client, handler, buf, responseSender) -> {
-			CompoundTag tag = buf.readCompoundTag();
+			NbtCompound tag = buf.readNbt();
 			Direction dir = buf.readEnumConstant(Direction.class);
 			BlockPos pos = buf.readBlockPos();
 			BlockState state = NbtHelper.toBlockState(tag.getCompound("state"));

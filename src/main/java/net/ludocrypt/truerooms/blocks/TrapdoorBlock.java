@@ -1,172 +1,72 @@
 package net.ludocrypt.truerooms.blocks;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.ludocrypt.truerooms.SecretRoomsClient;
+import net.ludocrypt.truerooms.blocks.entity.CamoBlockEntity;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.Material;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.Waterloggable;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.entity.ai.pathing.NavigationType;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 
-public class TrapdoorBlock extends CamoBlock implements Waterloggable {
-	public static final DirectionProperty FACING;
-	public static final BooleanProperty OPEN;
-	public static final EnumProperty<BlockHalf> HALF;
-	public static final BooleanProperty POWERED;
-	public static final BooleanProperty WATERLOGGED;
-	protected static final VoxelShape EAST_SHAPE;
-	protected static final VoxelShape WEST_SHAPE;
-	protected static final VoxelShape SOUTH_SHAPE;
-	protected static final VoxelShape NORTH_SHAPE;
-	protected static final VoxelShape OPEN_BOTTOM_SHAPE;
-	protected static final VoxelShape OPEN_TOP_SHAPE;
+public class TrapdoorBlock extends net.minecraft.block.TrapdoorBlock implements BlockEntityProvider, CamoBlock {
 
-	public TrapdoorBlock(FabricBlockSettings settings) {
+	public TrapdoorBlock(Settings settings) {
 		super(settings);
-		this.setDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateManager.getDefaultState()).with(FACING, Direction.NORTH)).with(OPEN, false)).with(HALF, BlockHalf.BOTTOM)).with(POWERED, false)).with(WATERLOGGED, false));
 	}
 
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		if (!(Boolean) state.get(OPEN)) {
-			return state.get(HALF) == BlockHalf.TOP ? OPEN_TOP_SHAPE : OPEN_BOTTOM_SHAPE;
-		} else {
-			switch ((Direction) state.get(FACING)) {
-			case NORTH:
-			default:
-				return NORTH_SHAPE;
-			case SOUTH:
-				return SOUTH_SHAPE;
-			case WEST:
-				return WEST_SHAPE;
-			case EAST:
-				return EAST_SHAPE;
-			}
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new CamoBlockEntity(pos, state);
+	}
+
+	@Override
+	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+		if (world.isClient) {
+			MinecraftClient client = MinecraftClient.getInstance();
+			SecretRoomsClient.sendHitSetter(pos, (BlockHitResult) client.crosshairTarget, false);
 		}
+		super.onPlaced(world, pos, state, placer, itemStack);
 	}
 
-	public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
-		switch (type) {
-		case LAND:
-			return (Boolean) state.get(OPEN);
-		case WATER:
-			return (Boolean) state.get(WATERLOGGED);
-		case AIR:
-			return (Boolean) state.get(OPEN);
-		default:
-			return false;
-		}
-	}
-
+	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		super.onUse(state, world, pos, player, hand, hit);
-		if (this.material == Material.METAL) {
-			return ActionResult.PASS;
-		} else {
-			state = (BlockState) state.cycle(OPEN);
-			world.setBlockState(pos, state, 2);
-			if ((Boolean) state.get(WATERLOGGED)) {
-				world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
-			}
-
-			this.playToggleSound(player, world, pos, (Boolean) state.get(OPEN));
-			return ActionResult.success(world.isClient);
-		}
-	}
-
-	protected void playToggleSound(PlayerEntity player, World world, BlockPos pos, boolean open) {
-		int i;
-		if (open) {
-			i = this.material == Material.METAL ? 1037 : 1007;
-			world.syncWorldEvent(player, i, pos, 0);
-		} else {
-			i = this.material == Material.METAL ? 1036 : 1013;
-			world.syncWorldEvent(player, i, pos, 0);
-		}
-
-	}
-
-	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
-		if (!world.isClient) {
-			boolean bl = world.isReceivingRedstonePower(pos);
-			if (bl != (Boolean) state.get(POWERED)) {
-				if ((Boolean) state.get(OPEN) != bl) {
-					state = (BlockState) state.with(OPEN, bl);
-					this.playToggleSound((PlayerEntity) null, world, pos, bl);
-				}
-
-				world.setBlockState(pos, (BlockState) state.with(POWERED, bl), 2);
-				if ((Boolean) state.get(WATERLOGGED)) {
-					world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+		if (world.getBlockEntity(pos) instanceof CamoBlockEntity) {
+			CamoBlockEntity blockEntity = (CamoBlockEntity) world.getBlockEntity(pos);
+			ItemStack itemStack = player.getStackInHand(hand);
+			if (itemStack.getItem() == Items.HONEYCOMB) {
+				if (!blockEntity.waxed) {
+					blockEntity.waxed = true;
+					player.playSound(SoundEvents.BLOCK_HONEY_BLOCK_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
+					return ActionResult.SUCCESS;
 				}
 			}
-
 		}
+		return super.onUse(state, world, pos, player, hand, hit);
 	}
 
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		BlockState blockState = this.getDefaultState();
-		FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
-		Direction direction = ctx.getSide();
-		if (!ctx.canReplaceExisting() && direction.getAxis().isHorizontal()) {
-			blockState = (BlockState) ((BlockState) blockState.with(FACING, direction)).with(HALF, ctx.getHitPos().y - (double) ctx.getBlockPos().getY() > 0.5D ? BlockHalf.TOP : BlockHalf.BOTTOM);
-		} else {
-			blockState = (BlockState) ((BlockState) blockState.with(FACING, ctx.getPlayerFacing().getOpposite())).with(HALF, direction == Direction.UP ? BlockHalf.BOTTOM : BlockHalf.TOP);
-		}
-
-		if (ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos())) {
-			blockState = (BlockState) ((BlockState) blockState.with(OPEN, true)).with(POWERED, true);
-		}
-
-		return (BlockState) blockState.with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+	@Override
+	public BlockRenderType getRenderType(BlockState state) {
+		return BlockRenderType.MODEL;
 	}
 
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, OPEN, HALF, POWERED, WATERLOGGED);
+	@Override
+	@Environment(EnvType.CLIENT)
+	public boolean isSideInvisible(BlockState state, BlockState stateFrom, Direction direction) {
+		return (stateFrom.getBlock() instanceof CamoBlock) ? true : super.isSideInvisible(state, stateFrom, direction);
 	}
 
-	public FluidState getFluidState(BlockState state) {
-		return (Boolean) state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
-	}
-
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		if ((Boolean) state.get(WATERLOGGED)) {
-			world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
-		}
-
-		return super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
-	}
-
-	static {
-		FACING = HorizontalFacingBlock.FACING;
-		OPEN = Properties.OPEN;
-		HALF = Properties.BLOCK_HALF;
-		POWERED = Properties.POWERED;
-		WATERLOGGED = Properties.WATERLOGGED;
-		EAST_SHAPE = Block.createCuboidShape(0.0D, 0.0D, 0.0D, 3.0D, 16.0D, 16.0D);
-		WEST_SHAPE = Block.createCuboidShape(13.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-		SOUTH_SHAPE = Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 3.0D);
-		NORTH_SHAPE = Block.createCuboidShape(0.0D, 0.0D, 13.0D, 16.0D, 16.0D, 16.0D);
-		OPEN_BOTTOM_SHAPE = Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 3.0D, 16.0D);
-		OPEN_TOP_SHAPE = Block.createCuboidShape(0.0D, 13.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-	}
 }

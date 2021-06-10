@@ -10,7 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -77,7 +77,7 @@ public class StaffOfCamo extends Item {
 	}
 
 	private static void putStateAndDirection(ItemStack itemStack, BlockState state, Direction dir) {
-		CompoundTag tag = itemStack.getOrCreateTag();
+		NbtCompound tag = itemStack.getOrCreateTag();
 		tag.put("setState", NbtHelper.fromBlockState(state));
 		tag.putString("setDirection", dir.name().toLowerCase());
 	}
@@ -87,8 +87,7 @@ public class StaffOfCamo extends Item {
 	}
 
 	private static Direction getDirection(ItemStack itemStack) {
-
-		CompoundTag tag = itemStack.getOrCreateTag();
+		NbtCompound tag = itemStack.getOrCreateTag();
 		Direction tempDir = Direction.NORTH;
 
 		tempDir = CamoBlockEntity.byName(tag.getString("setDirection"));
