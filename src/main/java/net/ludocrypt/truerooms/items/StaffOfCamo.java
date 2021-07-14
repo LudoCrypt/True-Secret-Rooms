@@ -42,7 +42,7 @@ public class StaffOfCamo extends Item {
 
 				if (!camoBlockEntity.waxed) {
 					if (itemStack.getItem() == SecretRooms.STAFF_OF_CAMO) {
-						if (itemStack.hasTag()) {
+						if (itemStack.hasNbt()) {
 							SecretRooms.updateSide(getState(itemStack), dir, blockPos, camoBlockEntity);
 							SecretRooms.updateDirection(getDirection(itemStack), dir, blockPos, camoBlockEntity);
 						} else {
@@ -77,17 +77,17 @@ public class StaffOfCamo extends Item {
 	}
 
 	private static void putStateAndDirection(ItemStack itemStack, BlockState state, Direction dir) {
-		NbtCompound tag = itemStack.getOrCreateTag();
+		NbtCompound tag = itemStack.getOrCreateNbt();
 		tag.put("setState", NbtHelper.fromBlockState(state));
 		tag.putString("setDirection", dir.name().toLowerCase());
 	}
 
 	private static BlockState getState(ItemStack itemStack) {
-		return NbtHelper.toBlockState(itemStack.getOrCreateSubTag("setState"));
+		return NbtHelper.toBlockState(itemStack.getOrCreateSubNbt("setState"));
 	}
 
 	private static Direction getDirection(ItemStack itemStack) {
-		NbtCompound tag = itemStack.getOrCreateTag();
+		NbtCompound tag = itemStack.getOrCreateNbt();
 		Direction tempDir = Direction.NORTH;
 
 		tempDir = CamoBlockEntity.byName(tag.getString("setDirection"));
