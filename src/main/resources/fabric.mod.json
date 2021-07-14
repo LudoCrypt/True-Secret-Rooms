@@ -33,5 +33,10 @@
 	},
 	"suggests": {
 		"flamingo": "*"
+	},
+	"custom": {
+		"dashloader:customobject": [
+			"net.ludocrypt.truerooms.dashloader.DashCamoBlockBakedModel"
+		]
 	}
 }
